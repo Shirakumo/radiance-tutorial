@@ -107,7 +107,7 @@ For the most part this is standard HTML5. The only special things in the templat
 
 Since this file is mostly just HTML, you can open it up in your browser and have a look. It's pretty barren for now, but we can fix that easily enough by writing some CSS. However, since writing plain CSS becomes pretty cumbersome fairly quick, we're going to use a CSS compiler, namely [LASS](https://shinmera.github.io/LASS). It should be fairly intuitive to realise how this translates. So, open up `plaster/static/plaster.lass` and create a file similar to this:
 
-```LASS
+```common-lisp
 (body
  :font-family sans-serif
  :font-size 14pt
