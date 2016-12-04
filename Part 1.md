@@ -230,7 +230,7 @@ Now we'll want to actually process the templates in the pages. This does not req
   (r-clip:process T))
 ```
 
-A short recompile later, and visiting [the according page](https://localhost:8080/!/plaster/edit) should show you the properly rendered page. Hovering over the `New` link in the header will reveal that Clip did indeed translate the URI into a fixed URL that points to the appropriate "external" resource.
+A short recompile later, and visiting [the according page](http://localhost:8080/!/plaster/edit) should show you the properly rendered page. Hovering over the `New` link in the header will reveal that Clip did indeed translate the URI into a fixed URL that points to the appropriate "external" resource.
 
 ## API Endpoints and Databases
 Now that we have pages going, we'll need to set up an API endpoint to paste to. In Radiance, you are encouraged to set up any kind of data manipulation action as an API endpoint rather than handling it in a page, both to separate concerns, and to make your application accessible programmatically. Since we've already referred to the API endpoint we need in our form, let's just go ahead and create it.
