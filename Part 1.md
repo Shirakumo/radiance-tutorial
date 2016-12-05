@@ -322,7 +322,9 @@ So far so good. Now we need to update the view page to actually retrieve the req
      :text (gethash "text" paste))))
 ```
 
-First we need to parse the ID from the string parameter into an integer. Then we retrieve the record from the database. If none could be found, an error is signalled that will usually cause an error page to be displayed to the user. Depending on your philosophy you may also want to handle that case yourself and present a special page instead of a generic error. For now, this will do. Finally, we pass some extra parameters to Clip's `process` so that we can access them from the template. Let's go and update that.
+First we need to parse the ID from the string parameter into an integer. Then we retrieve the record from the database. `db:query` here is a macro that recognises a rather simplified query language that all databases must support. In this case we simply check whether the `_id` field of the record matches our id variable. Every record in the database is required to have an `_id` field whose value must be unique within its collection.
+
+Now, if the paste could not be found, an error is signalled that will usually cause an error page to be displayed to the user. Depending on your philosophy you may also want to handle that case yourself and present a special page instead of a generic error. For now, this will do. Finally, we pass some extra parameters to Clip's `process` so that we can access them from the template. Let's go and update that.
 
 ```HTML
 <!DOCTYPE html>
