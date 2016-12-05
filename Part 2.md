@@ -12,13 +12,6 @@ Ok, let's go.
 First, let's change up the `edit` page to accept an ID in its url and potentially use the loaded paste to fill in the template, similar to the `view` page.
 
 ```common-lisp
-
-```
-
-## Verification and Correctness
-An important, but often forgotten aspect is the validation of data that an API receives. So far we don't really have much to validate, but nevertheless it is important to keep it in mind. Let's augment our API endpoints for some checks.
-
-```common-lisp
 (define-page edit "plaster/edit(/(.*))?" (:uri-groups (NIL id) :lquery "edit.ctml")
   (if id
       (let ((id (parse-integer id))
@@ -33,7 +26,10 @@ An important, but often forgotten aspect is the validation of data that an API r
       (r-clip:process T)))
 ```
 
-At this point you might realise that we're duplicating quite a bit of functionality. Not to mention that the code looks a bit too elaborate for what we're doing. Let's try something else instead. We'll create some functions for the programmatical handling of our pastes. As part of that, we'll make use of another of Radiance's interface, namely the `data-model`. This provides a very thin but convenient wrapper around database records. Time to change and reload our system.
+At this point you might realise that we're duplicating quite a bit of functionality. Not to mention that the code looks a bit too elaborate for what we're doing. Let's try something else instead. 
+
+## Cleaning up Data Access
+We'll create some functions for the programmatical handling of our pastes. As part of that, we'll make use of another of Radiance's interface, namely the `data-model`. This provides a very thin but convenient wrapper around database records. Time to change and reload our system.
 
 ```common-lisp
 (asdf:defsystem #:plaster
@@ -108,7 +104,9 @@ Ah! Much simpler. The template now only gets a single variable, namely our paste
           </header>
           <textarea name="text" placeholder="Paste something here" readonly
                     lquery="(text text)"></textarea>
-          <nav class="actions"></nav>
+          <nav class="actions">
+            <input type="submit" @formaction="/edit/{0} _id" name="Edit" />
+          </nav>
         </form>
       </c:using>
     </main>
@@ -120,4 +118,66 @@ Ah! Much simpler. The template now only gets a single variable, namely our paste
 
 Now we have something new going on! The `<c:using>` tag is kind of like a `let` binding and replaces the current set of variables -- called the "clipboard" -- with whatever value is resolved in its `value` attribute. Anything within the tag then resolves its variables using this new object, in our case the paste data-model. The actual tag will be removed upon compilation and its contents are just spliced in-place.
 
-I've also added a `<time>` tag, which will be automatically filled with appropriate data by the lQuery `time` function.
+I've also added a `<time>` tag, which will be automatically filled with appropriate data by the lQuery `time` function. The actions have also been extended with a submit button that should take you to the appropriate page. Interesting here is that the `@formaction` attribute contains a URI with a pattern, and an argument. All of the `@` tags in Clip can take a URI and a number of arguments that are used to fill in the numbered placeholders in the URI.
+
+With that said, let's return to our initial objective.
+
+## Editing Pastes -- Take 2
+With a proper edit button in place, and data handling cleaned up, let's give the edit page another try.
+
+```common-lisp
+(define-page edit "plaster/edit(/(.*))?" (:uri-groups (NIL id) :lquery "edit.ctml")
+  (let ((paste (if id
+                   (ensure-paste id)
+                   (dm:hull 'plaster-pastes))))
+    (r-clip:process T :paste paste)))
+```
+
+Alright, that's simple enough. Now we just need to fix up the edit template like we did for the view.
+
+```HTML
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Plaster</title>
+    <link rel="stylesheet" type="text/css" href="../static/plaster.css" @href="/static/plaster/plaster.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Plaster</h1>
+      <nav>
+        <a href="#" @href="plaster/edit">New</a>
+      </nav>
+    </header>
+    <main>
+      <c:using value="paste">
+        <form class="edit" method="post" action="#">
+          <header>
+            <input type="text" name="title" placeholder="Untitled" maxlength="32" />
+          </header>
+          <textarea name="text" placeholder="Paste something here" autofocus></textarea>
+          <nav class="actions">
+            <input type="hidden" name="id" lquery="(val _id)" />
+            <input type="hidden" name="browser" value="true" />
+            <c:if test="(dm:hull-p *)">
+              <c:then>
+                <input type="submit" @formaction="/api/plaster/new" value="Post" />
+              </c:then>
+              <c:else>
+                <input type="submit" @formaction="/api/plaster/edit" value="Edit" />
+              </c:else>
+            </c:if>
+          </nav>
+        </form>
+      </c:using>
+    </main>
+    <footer>
+    </footer>
+  </body>
+</html>
+```
+
+
+## Verification and Correctness
+An important, but often forgotten aspect is the validation of data that an API receives. So far we don't really have much to validate, but nevertheless it is important to keep it in mind. Let's augment our API endpoints for some checks.
