@@ -66,11 +66,11 @@ Now that we have these convenience functions we should update our API endpoint a
   (let ((paste (create-paste text :title title)))
     (if (string= "true" (post/get "browser"))
         (redirect (make-uri :domains '("plaster")
-                            :path (format NIL "view/~a" id)))
+                            :path (format NIL "view/~a" (dm:id paste))))
         (api-output `(("id" . ,(dm:id paste)))))))
 ```
 
-Not much has changed here. For the view, we'll also update the template a bit, both to make things look a bit simpler in our page, and in order to display the time that we haven't done anything with before now. Here's the new page definition:
+Not much has changed here aside from the access to the ID. For the view, we'll also update the template a bit, both to make things look a bit simpler in our page, and in order to display the time that we haven't done anything with before now. Here's the new page definition:
 
 ```common-lisp
 (define-page view "plaster/view/(.*)" (:uri-groups (id) :lquery "view.ctml")
@@ -105,7 +105,7 @@ Ah! Much simpler. The template now only gets a single variable, namely our paste
           <textarea name="text" placeholder="Paste something here" readonly
                     lquery="(text text)"></textarea>
           <nav class="actions">
-            <input type="submit" @formaction="/edit/{0} _id" name="Edit" />
+            <input type="submit" @formaction="/edit/{0} _id" value="Edit" />
           </nav>
         </form>
       </c:using>
@@ -154,9 +154,9 @@ Alright, that's simple enough. Now we just need to fix up the edit template like
       <c:using value="paste">
         <form class="edit" method="post" action="#">
           <header>
-            <input type="text" name="title" placeholder="Untitled" maxlength="32" />
+            <input type="text" name="title" placeholder="Untitled" maxlength="32" lquery="(val title)" />
           </header>
-          <textarea name="text" placeholder="Paste something here" autofocus></textarea>
+          <textarea name="text" placeholder="Paste something here" autofocus lquery="(text text)"></textarea>
           <nav class="actions">
             <input type="hidden" name="id" lquery="(val _id)" />
             <input type="hidden" name="browser" value="true" />
@@ -178,6 +178,50 @@ Alright, that's simple enough. Now we just need to fix up the edit template like
 </html>
 ```
 
+Here things become a bit more special. Aside from the added `lquery` tags to fill in the fields and the `<c:using>` tag like before, we now also have a `<c:if>`. This works pretty much exactly like you would imagine it to. It evaluates the code in its `test` attribute. If this evaluates to a non-`NIL` value, the `<c:then>` tag is evaluated and spliced in place of the `<c:if>`. Otherwise, the same is done but for the `<c:else>` tag. This, coupled with the `@formaction` allows us to use a different API endpoint depending on whether we're currently creating a new paste, or editing it.
+
+Assuming that you've already tried the pasting out before, if you visit [the paste view page](https://localhost:8080/!/plaster/view/0) now, you'll be able to successfully click on the Edit button and be lead to the editing page. Actually editing the paste won't work quite yet, but it will fail somewhat gracefully. Hitting the "Edit" button will redirect you back to the same page. You might then realise that we've been redirected back with an `error` GET parameter added, though. Let's incorporate that into the page so that the user can actually see it in a useful way.
+
+```common-lisp
+(define-page edit "plaster/edit(/(.*))?" (:uri-groups (NIL id) :lquery "edit.ctml")
+  (let ((paste (if id
+                   (ensure-paste id)
+                   (dm:hull 'plaster-pastes))))
+    (r-clip:process T :paste paste
+                      :error (get-var "error"))))
+```
+
+All that's changed is that there's another Clip variable for the error message that's taken from the get parameter. The change to the edit template is also not big. Just add the following snippet somewhere appropriate outside the `<c:using>` tag.
+
+```HTML
+<c:when test="error">
+  <div id="error" lquery="(text error)">ERROR</div>
+</c:when>
+```
+
+Similar to Lisp's `when` and `unless`, Clip also supports these shorthands to make the common cases of conditionals shorter. If you refresh your page after these changes, you should get a big 'ol error box explaining what's wrong.
+
+Naturally we can't edit yet because the API endpoint doesn't exist. Easy enough to fix.
+
+```common-lisp
+(defun api-paste-output (paste)
+  (if (string= "true" (post/get "browser"))
+      (redirect (make-uri :domains '("plaster")
+                          :path (format NIL "view/~a" (dm:id paste))))
+      (api-output (loop for field in (dm:fields paste)
+                        collect (cons field (dm:field paste field))))))
+
+(define-api plaster/edit (id &optional text title) ()
+  (let ((paste (ensure-paste id)))
+    (when text (setf (dm:field paste "text") text))
+    (when title (setf (dm:field paste "title") title))
+    (dm:save paste)
+    (api-paste-output paste)))
+```
+
+I've extracted the output/redirect behaviour into its own function here in order to eliminate the duplication from the two API endpoints. While I was at it, I've also made it return all of the data it has on a non-browser request, which should be a lot more useful.
+
+The actual updating of the paste record in the edit endpoint is nothing surprising. The data-model wrapper will take care of most of it. All we have to do is retrieve it, set the fields, at save it.
 
 ## Verification and Correctness
 An important, but often forgotten aspect is the validation of data that an API receives. So far we don't really have much to validate, but nevertheless it is important to keep it in mind. Let's augment our API endpoints for some checks.
