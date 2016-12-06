@@ -1,4 +1,13 @@
 # Part 2
+## Resources & Documentation
+Here are links to relevant documentation and resource pages that will be useful to refer to for this tutorial.
+
+* [Radiance](https://shirakumo.github.io/radiance)
+* [Interface Definitions](https://github.com/Shirakumo/radiance/blob/master/standard-interfaces.lisp)
+* [Clip](https://shinmera.github.io/clip)
+* [lQuery](https://shinmera.github.io/lquery)
+* [LASS](https://shinmera.github.io/LASS)
+
 ## A Short Roadmap
 Like before, we'll see which points to address in this part of the tutorial.
 
