@@ -16,7 +16,7 @@ Well then. Our homework for today is:
 * A public list of pastes
 * Being able to unlist and protect pastes
 
-Let's get crackin'
+Let's get crackin'.
 
 ## A Public Paste List
 We're finally at the point where we need to split off from our view and edit pages, and create a new one. So fire up your editor because it's time to write some more HTML.
@@ -26,3 +26,5 @@ For the most part the page should be rather simple-- just a listing of some numb
 ```HTML
 
 ```
+
+[Part 5](Part 5.md)
