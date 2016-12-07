@@ -165,6 +165,14 @@ Back to templates! Since this file is mostly just HTML, you can open it up in yo
       :font-size 2em
       :display inline)
   (nav :display inline-flex))
+ (.infobox
+  :background (rgb 100 100 100)
+  :color (rgb 255 255 255)
+  :padding 10px
+  :margin 10px
+  :font-weight bold)
+ ("#error" :background (rgb 200 0 0))
+ ("#message" :background (rgb 0 200 0))
  (>main
   (.edit
    :text-align right
@@ -173,6 +181,7 @@ Back to templates! Since this file is mostly just HTML, you can open it up in yo
     :padding 10px
     :background (rgb 20 20 20)
     :border-bottom 3px solid (rgb 0 130 240)
+    :color (rgb 255 255 255)
     (input[type=text]
      :font-size 1.0em
      :width 400px
@@ -187,8 +196,15 @@ Back to templates! Since this file is mostly just HTML, you can open it up in yo
     :box-sizing border-box
     :display block
     :font-family monospace
-    :font-size 1.0em))))
+    :font-size 1.0em)
+   (.actions
+    :display flex
+    :justify-content flex-end
+    ((:or a input)
+     :display inline-block)))))
 ```
+
+This paste contains a tad more things than absolutely necessary for our needs right now, but in order to avoid having to paste an update for new elements in future parts, I've just inserted the completed style sheet here.
 
 If you load `lass.el` into your emacs setup before opening the file, it'll compile it to the according CSS file automatically whenever you save. Otherwise, load LASS into your lisp and compile the file.
 
@@ -373,4 +389,6 @@ You should now be able to visit [the /new page](http://localhost:8080/!/plaster/
 
 Despite this seeming like a small goal to reach, we've touched on many different parts already now. We've looked at how to start out with a new module, how to define pages and API endpoints, how to interface and get started with a database, how to integrate Clip templates and how to use them, and finally how to use LASS for CSS compilation. If you're feeling a bit overwhelmed, don't worry. Try going through this part again and look at the documentation of the associated systems. While there are many parts, the ways in which they function are not altogether complicated.
 
-Once you think that you've understood it all well and proper enough, you can move on to the second part, in which we'll flesh things out a bit by adding paste editing, deleting, and validation.
+Once you think that you've understood it all well and proper enough, you can move on to the second part, in which we'll flesh things out a bit by adding some more actions.
+
+[Part 2](Part 2.md)

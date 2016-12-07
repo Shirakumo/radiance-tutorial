@@ -1,4 +1,6 @@
 # Part 2
+[Part 1](Part 1.md)
+
 ## Resources & Documentation
 Here are links to relevant documentation and resource pages that will be useful to refer to for this tutorial.
 
@@ -13,7 +15,6 @@ Like before, we'll see which points to address in this part of the tutorial.
 
 * Allow editing existing pastes
 * Allow deleting pastes
-* Check the validity of arguments
 
 Ok, let's go.
 
@@ -174,7 +175,7 @@ Alright, that's simple enough. Now we just need to fix up the edit template like
                 <input type="submit" @formaction="/api/plaster/new" value="Post" />
               </c:then>
               <c:else>
-                <input type="submit" @formaction="/api/plaster/edit" value="Edit" />
+                <input type="submit" @formaction="/api/plaster/edit" value="Save" />
               </c:else>
             </c:if>
           </nav>
@@ -204,7 +205,7 @@ All that's changed is that there's another Clip variable for the error message t
 
 ```HTML
 <c:when test="error">
-  <div id="error" lquery="(text error)">ERROR</div>
+  <div class="infobox" id="error" lquery="(text error)">ERROR</div>
 </c:when>
 ```
 
@@ -230,7 +231,50 @@ Naturally we can't edit yet because the API endpoint doesn't exist. Easy enough 
 
 I've extracted the output/redirect behaviour into its own function here in order to eliminate the duplication from the two API endpoints. While I was at it, I've also made it return all of the data it has on a non-browser request, which should be a lot more useful.
 
-The actual updating of the paste record in the edit endpoint is nothing surprising. The data-model wrapper will take care of most of it. All we have to do is retrieve it, set the fields, at save it.
+The actual updating of the paste record in the edit endpoint is nothing surprising. The data-model wrapper will take care of most of it. All we have to do is retrieve it, set the fields, and save it. If you give the editing a whirl now, it should all work out splendidly.
 
-## Verification and Correctness
-An important, but often forgotten aspect is the validation of data that an API receives. So far we don't really have much to validate, but nevertheless it is important to keep it in mind. Let's augment our API endpoints for some checks.
+## Deleting Pastes
+Adding the ability to delete pastes from here is not going to be much of a challenge anymore. We'll just need a new API endpoint and another button on the editing template.
+
+```common-lisp
+(define-api plaster/delete (id) ()
+  (let ((paste (ensure-paste id)))
+    (dm:delete paste)
+    (if (string= "true" (post/get "browser"))
+        (redirect (uri-to-url "plaster/edit"
+                              :representation :external
+                              :query '(("message" . "Paste deleted"))))
+        (api-output `(("_id" . ,(dm:id paste)))))))
+```
+
+But oh! The `redirect` changed here from what we've seen before. Instead of directly passing it a URI, we're instead transforming the URI manually into an URL with some extra arguments. This is done because URIs do not store the query part of a URL. However, since we want to give the user some kind of feedback after a successful deletion, we should add a message to the edit page. We can do this with a GET argument, which we need to mix into the URL by `uri-to-url`. The `:representation :external` makes sure that the URI is transformed into a URL that points to resources that are valid on the HTML page, rather than internally. Again, this is part of the routing system, which we'll look at more in-depth in a later part.
+
+All that's left is changing the template and page. Adding the following snippet before the `Save` button in `edit.ctml` should take care of the button.
+
+```HTML
+<input type="submit" @formaction="/api/plaster/delete" value="Delete" />
+```
+
+For the message we need to do basically the same thing as for the error response.
+
+```HTML
+<c:when test="message">
+  <div class="infobox" id="message" lquery="(text message)">MESSAGE</div>
+</c:when>
+```
+
+And now to add the argument to the Clip processing call.
+
+```common-lisp
+(define-page edit "plaster/edit(/(.*))?" (:uri-groups (NIL id) :lquery "edit.ctml")
+  (let ((paste (if id
+                   (ensure-paste id)
+                   (dm:hull 'plaster-pastes))))
+    (r-clip:process T :paste paste
+                      :error (get-var "error")
+                      :message (get-var "message"))))
+```
+
+And we're all done already.
+
+With that we've got a semi-sensible paste service up and running. In the next part we'll look at even more actions one might want to do with pastes. Those will however require a bit more serious restructuring than what we've been doing in this part.
