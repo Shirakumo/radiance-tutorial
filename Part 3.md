@@ -111,6 +111,7 @@ Now that creation is taking care of, we also need to handle deletion. If a paren
     (let ((paste (ensure-paste paste)))
       (mapc #'dm:delete (paste-annotations paste))
       (db:remove 'plaster-annotations (db:query (:= 'paste (dm:id paste))))
+      (db:remove 'plaster-annotations (db:query (:= 'annotation (dm:id paste))))
       paste)))
 ```
 
@@ -178,28 +179,53 @@ First, another button to our actions nav:
 And second, a new section below our `<c:using>` tag that will be used to display all of the annotations. This one's a bit bigger than our HTML snippets have been for a while.
 
 ```HTML
-<section>
-  <h2>Annotations</h2>
-  <ul iterate="annotations">
-    <li>
-      <form class="edit" lquery="(attr :id _id)">
-        <header>
-          <input type="text" name="title" placeholder="Untitled" maxlength="32" readonly
-                 lquery="(val title)" />
-          <time lquery="(time time)">2106.10.23</time>
-        </header>
-        <textarea name="text" placeholder="Paste something here" readonly
-                  lquery="(text text)"></textarea>
-        <nav class="actions">
-          <a href="#" @href="plaster/edit/{0}?repaste _id">Repaste</a>
-          <a href="#" @href="plaster/edit/{0} _id">Edit</a>
-        </nav>
-      </form>
-    </li>
-  </ul>
-</section>
+<c:when test="annotations">
+  <section id="annotations">
+    <h2>Annotations</h2>
+    <ul iterate="annotations">
+      <li>
+        <form class="edit" lquery="(attr :id _id)">
+          <header>
+            <input type="text" name="title" placeholder="Untitled" maxlength="32" readonly
+                   lquery="(val title)" />
+            <time lquery="(time time)">2106.10.23</time>
+          </header>
+          <textarea name="text" placeholder="Paste something here" readonly
+                    lquery="(text text)"></textarea>
+          <nav class="actions">
+            <a href="#" @href="plaster/edit/{0}?repaste _id">Repaste</a>
+            <a href="#" @href="plaster/edit/{0} _id">Edit</a>
+          </nav>
+        </form>
+      </li>
+    </ul>
+  </section>
+</c:when>
 ```
 
 For the most part however, it is just a copy of the actual paste form, with the annotation button removed. The rest is just an `<ul><li>` tagging around it, and a nice section for readability. The interesting part here is the Clip `iterate` attribute, which will iterate over its value, copy the contents of its element every time and put the evaluated result of that copy into itself. More simply put, it probably does about what you would expect it to do.
 
+Finally we need to update our stylesheet to account for the new annotations section. Add the following snippet within the `>main` block and you should be all set.
+
+```common-lisp
+("#annotations"
+ :margin 0 10px 0 10px
+ (h2
+  :color (rgb 255 255 255)
+  :border-bottom 3px solid (rgb 0 130 240))
+ (ul
+  :list-style none
+  :padding 0
+  (.edit
+   :margin 0 0 5px 0
+   (header
+    :padding 5px
+    :font-size 0.8em
+    :border-width 1px)
+   (textarea
+    :min-height 100px))))
+```
+
 And that's all she wrote. You can now try out annotating. If you did it all right, it should work marvellously. If not, retrace your steps, compare the code, and I'm sure you'll be able to find a mistake soon enough.
+
+[Part 4](Part 4.md)

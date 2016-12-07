@@ -278,3 +278,5 @@ And now to add the argument to the Clip processing call.
 And we're all done already.
 
 With that we've got a semi-sensible paste service up and running. In the next part we'll look at even more actions one might want to do with pastes. Those will however require a bit more serious restructuring than what we've been doing in this part.
+
+[Part 3](Part 3.md)
