@@ -389,6 +389,8 @@ You should now be able to visit [the /new page](http://localhost:8080/!/plaster/
 
 Despite this seeming like a small goal to reach, we've touched on many different parts already now. We've looked at how to start out with a new module, how to define pages and API endpoints, how to interface and get started with a database, how to integrate Clip templates and how to use them, and finally how to use LASS for CSS compilation. If you're feeling a bit overwhelmed, don't worry. Try going through this part again and look at the documentation of the associated systems. While there are many parts, the ways in which they function are not altogether complicated.
 
-Once you think that you've understood it all well and proper enough, you can move on to the second part, in which we'll flesh things out a bit by adding some more actions.
+In case you're encountering error pages and you'd like to get something more useful than a mere message, you can `(setf radiance:*debugger* T)`, which will cause the debugger to be invoked on request errors. With Slime and some looking around, I'm sure that should help you figure out what went wrong rather quickly.
+
+Once you think that you've understood it all well and proper enough, you can move on to the second part, in which we'll flesh things out a bit by adding some more actions. 
 
 [Part 2](Part 2.md)
