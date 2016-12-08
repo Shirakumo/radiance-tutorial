@@ -9,6 +9,7 @@ Here are links to relevant documentation and resource pages that will be useful 
 * [Clip](https://shinmera.github.io/clip)
 * [lQuery](https://shinmera.github.io/lquery)
 * [LASS](https://shinmera.github.io/LASS)
+* [Crypto-Shortcuts](https://shinmera.github.io/crypto-shortcuts)
 
 ## A Short Roadmap
 This is the last part that deals with actual development of our application. The final part is one from the perspective of an administrator.

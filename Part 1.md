@@ -16,6 +16,7 @@ Here are links to relevant documentation and resource pages that will be useful 
 * [Clip](https://shinmera.github.io/clip)
 * [lQuery](https://shinmera.github.io/lquery)
 * [LASS](https://shinmera.github.io/LASS)
+* [Crypto-Shortcuts](https://shinmera.github.io/crypto-shortcuts)
 
 ## A Short Roadmap
 A first step should probably be to consider what kind of capabilities the application should have and in what way they are presented to the user. A paste service is relatively clearly defined, so this isn't much of a problem.
@@ -164,7 +165,9 @@ Back to templates! Since this file is mostly just HTML, you can open it up in yo
   (h1 :margin 0 20px 0 20px
       :font-size 2em
       :display inline)
-  (nav :display inline-flex))
+  (nav :display inline-flex
+       :vertical-align bottom
+       (* :margin 0 10px 0 0)))
  (.infobox
   :background (rgb 100 100 100)
   :color (rgb 255 255 255)
