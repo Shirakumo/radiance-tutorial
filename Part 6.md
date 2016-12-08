@@ -15,13 +15,16 @@ Here are links to relevant documentation and resource pages that will be useful 
 This is the last part that deals with actual development of our application. The final part is one from the perspective of an administrator.
 
 * A capable editor with syntax highlighting
-* Configuration and User Settings
+* Configuration and user settings
+* Missing API endpoints
 
 ## Syntax Highlighting
 
 ## Configuration
 
 ## User Settings
+
+## Missing API Endpoints
 
 
 [Part 7](Part 7.md)
