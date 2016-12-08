@@ -166,7 +166,7 @@ Alright, that's simple enough. Now we just need to fix up the edit template like
           <header>
             <input type="text" name="title" placeholder="Untitled" maxlength="32" lquery="(val title)" />
           </header>
-          <textarea name="text" placeholder="Paste something here" autofocus lquery="(text text)"></textarea>
+          <textarea name="text" placeholder="Paste something here" autofocus required lquery="(text text)"></textarea>
           <nav class="actions">
             <input type="hidden" name="id" lquery="(val _id)" />
             <input type="hidden" name="browser" value="true" />

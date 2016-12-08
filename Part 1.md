@@ -122,7 +122,7 @@ Create a file `plaster/template/edit.ctml` and edit it to contain something simi
         <header>
           <input type="text" name="title" placeholder="Untitled" maxlength="32" />
         </header>
-        <textarea name="text" placeholder="Paste something here" autofocus></textarea>
+        <textarea name="text" placeholder="Paste something here" autofocus required></textarea>
         <nav class="actions">
           <input type="hidden" name="browser" value="true" />
           <input type="submit" name="action" value="Post" />
