@@ -102,7 +102,7 @@ The actual page to present this isn't too complicated either:
                       :has-more (<= *pastes-per-page* (length pastes)))))
 ```
 
-To get the pagination going we use the `:skip` and `:amount` arguments. The `:sort` clause ensures deterministic ordering of the results. Finally we use a dynamic variable to hold how many pastes we want to display on each page and supply the template with the necessary stuff.
+To get the pagination going we use the `:skip` and `:amount` arguments. The `:sort` clause ensures deterministic ordering of the results. Finally we use a dynamic variable to hold how many pastes we want to display on each page and supply the template with the necessary stuff. The special keyword `:all` in the `db:query` form produces a selector that simply lets through any record.
 
 At this point I think it is worth to mention that a lot of the precise detail decisions of how things are done here are just my own whims, and it certainly could be done very differently too. For example, you could also output a `:has-less` argument to the template instead of manually testing for `(< 0 page)`. You could display the current page number somewhere. You could rearrange the templates, store the data differently, etc. I'm sure you'll find a way to do things exactly the way you want to do them once you're moving on to your own project. For now, simply humour me and see this more as a display of a possible way to get things done, rather than "the correct way".
 
@@ -173,7 +173,7 @@ First, some more functions to coerce some data.
   (when password (cryptos:pbkdf2-hash password *password-salt*)))
 ```
 
-We allow both string and integer arguments for the visibility here in order to make the API a bit more "human". For the hashing of the password we've employed the help of another library called [Crypto-Shortcuts](https://shinmera.github.io/crypto-shortcuts), which should also be added to the ASDF system. This is also the first occurrence of the `or*` macro, which is just the same as `or`, but treats an empty string as NIL, which is a very useful behaviour for GET and POST arguments on web interfaces.
+We allow both string and integer arguments for the visibility here in order to make the API a bit more "human". For the hashing of the password we've employed the help of another library called [Crypto-Shortcuts](https://shinmera.github.io/crypto-shortcuts), which should also be added to the ASDF system. This is also the first occurrence of the `or*` macro, which is just the same as `or`, but treats an empty string as NIL, which is a very useful behaviour for GET and POST arguments on web interfaces. The `api-error` is a shorthand for signalling a condition of type `api-error`, which will give useful API output rather than a generic failure page.
 
 Next is the actual create function itself. While I was at it I've also factored out the annotation association.
 
@@ -232,7 +232,182 @@ Not much of excitement to see here. For the password update we use the previous 
     (api-paste-output paste)))
 ```
 
-You should now be able to paste with the different visibilities being remembered and checked properly. However, the actual behaviour on the list page and the view page are not yet implemented.
+You should now be able to paste with the different visibilities being remembered and checked properly. However, the actual behaviour on the list page and the view page are not yet implemented. The list page is fixed easily. All we need to do is change the query of the `dm:get` call from `(db:query :all)` to `(db:query (:= 'visibility 1))`.
 
+When thinking about the view page, you might realise a bit of a pickle. Currently it's possible to also view annotations on their own, and they even have their own visibility. However, it is probably much more sensible for an annotation to inherit the visibility from its parent. The solution to this that I've opted for is to make the view page for an annotation redirect to the view page for its parent. The parent page can then handle the "authentication". At the same time, when creating an annotation the visibility selector and password field are hidden from the user, and the default visibility is set to unlisted. This'll require changes in a few places, but don't worry, it's not too big of an issue.
+
+First, the template. Simply wrapping the visibility div in an `<c:unless test="(** :parent)">` element should be sufficient, but showing the user that they're annotating would probably be nice too, so let's do that instead. 
+
+```HTML
+<c:if test="(** :parent)">
+  <c:then>
+    <div class="annotate">
+      Annotating paste <span lquery="(text (** :parent))">#</span>
+    </div>
+  </c:then>
+  <c:else>
+    <div class="visibility">
+      Visibility: <select name="visibility">
+      <option value="1" lquery="(attr :selected (eql 1 visibility))">public</option>
+      <option value="2" lquery="(attr :selected (eql 2 visibility))">unlisted</option>
+      <option value="3" lquery="(attr :selected (eql 3 visibility))">private</option>
+      </select>
+      <input type="password" name="password" placeholder="password" />
+    </div>
+  </c:else>
+</c:if>
+```
+
+This fixes almost everything. However, this only handles the case where we create a new annotation. On the edit page of an annotation, the `annotate` GET parameter is not set and the visibility options will appear again. Not what we want. A slight modification to the template argument should fix this though.
+
+```common-lisp
+:parent (if id
+            (let ((parent (paste-parent paste)))
+              (when parent (dm:id parent)))
+            (get-var "annotate"))
+```
+
+Not the prettiest way to do it, but it'll be fine for now.
+
+Next the `create-paste` and `edit-paste` functions need to be made aware of the special casing of annotations. For the former, we'll first want to perform a check to see if the visibility was passed explicitly when a parent was passed as well and error in that case. Otherwise we default to a visibility of `2` if a parent was passed.
+
+```common-lisp
+(defun create-paste (text &key title parent visibility password)
+  (when (and parent visibility)
+    (api-error "Cannot set the visibility of an annotation."))
+  (db:with-transaction ()
+    (let* ((paste (dm:hull 'plaster-pastes))
+           (parent (when parent (ensure-paste parent)))
+           (visibility (if parent 2 (ensure-visibility visibility)))
+           (password (ensure-password visibility password)))
+      (setf (dm:field paste "text") text
+            (dm:field paste "title") (or title "")
+            (dm:field paste "time") (get-universal-time)
+            (dm:field paste "visibility") visibility
+            (dm:field paste "password") password)
+      (dm:insert paste)
+      (when parent (register-annotation paste parent))
+      paste)))
+```
+
+We perform the same check in the `edit-paste` function.
+
+```common-lisp
+(defun edit-paste (paste &key text title visibility password)
+  (db:with-transaction ()
+    (let* ((paste (ensure-paste paste)))
+      (when text
+        (setf (dm:field paste "text") text))
+      (when title
+        (setf (dm:field paste "title") title))
+      (when (and (paste-parent paste) visibility)
+        (api-error "Cannot set the visibility of an annotation."))
+      (when visibility
+        (setf (dm:field paste "visibility") (ensure-visibility visibility)))
+      (when password
+        (setf (dm:field paste "password") (ensure-password (or visibility (dm:field paste "visibility"))
+                                                           password)))
+      (dm:save paste))))
+```
+
+Alright. With the checks in place, the last thing we have to do now is to modify the view page for two things. First, to redirect in the case of an annotation, and second to present a password prompt if no valid password was given to a private paste.
+
+We've kind of already got the redirect logic properly encapsulated in another function called `api-paste-output`. Let's strip that out and put it into a function we can use directly instead.
+
+```common-lisp
+(defun paste-url (paste &optional (parent (paste-parent paste)))
+  (let ((paste (ensure-paste paste)))
+    (make-url :domains '("plaster")
+              :path (format NIL "view/~a"
+                            (if parent
+                                (dm:id parent)
+                                (dm:id paste)))
+              :fragment (princ-to-string (dm:id paste)))))
+
+(defun api-paste-output (paste)
+  (cond ((string= "true" (post/get "browser"))
+         (redirect (paste-url paste)))
+        (T
+         (api-output (loop for field in (dm:fields paste)
+                           collect (cons field (dm:field paste field)))))))
+```
+
+I've made a very minor optimisation here where I allow the passing of the parent as an argument. In order to check whether the paste is an annotation we immediately retrieve the parent object on the view page already, so fetching it twice would be kind of stupid. Mind you, we've already got plenty of unnecessary database accesses and slight inefficiencies in the code, but I will gladly give those for the sake of clarity and brevity. In this case however, we don't lose much.
+
+```common-lisp
+(define-page view "plaster/view/(.*)" (:uri-groups (id) :lquery "view.ctml")
+  (let* ((paste (ensure-paste id))
+         (parent (paste-parent paste)))
+    (if parent
+        (redirect (paste-url paste parent))
+        (r-clip:process T :paste paste
+                          :annotations (sort (paste-annotations paste)
+                                             #'< :key (lambda (a) (dm:field a "time")))))))
+```
+
+With that all set and done, viewing an annotation directly should now properly redirect to its parent. On to the password logic.
+
+A sensible way to go about all of this would be to show a password prompt page if no password was given, the usual paste page on a correct password, and a permission denied error page on an incorrect one. Shouldn't be too hard, we just need to add some more clauses to that `if` of ours.
+
+```common-lisp
+(define-page view "plaster/view/(.*)" (:uri-groups (id) :lquery "view.ctml")
+  (let* ((paste (ensure-paste id))
+         (parent (paste-parent paste))
+         (password (post/get "password")))
+    (cond (parent
+           (redirect (paste-url paste parent)))
+          ((or (/= 3 (dm:field paste "visibility"))
+               (string= (dm:field paste "password") (cryptos:pbkdf2-hash password *password-salt*)))
+           (r-clip:process T :paste paste
+                             :annotations (sort (paste-annotations paste)
+                                                #'< :key (lambda (a) (dm:field a "time")))))
+          ((or* password)
+           (error 'request-denied :message "The supplied password is incorrect."))
+          (T
+           (r-clip:process (@template "password.ctml"))))))
+```
+
+The `post/get` function is another useful one that allows you to retrieve a parameter that can both be a POST or a GET parameter. We allow both as it might be useful for someone to distribute a private paste with the password in its URL directly to others. Otherwise a POST parameter would be preferred for the exact opposite reason.
+
+We then check if the paste is a "normal" one, or if the password matches perfectly. If so we proceed as usual. Otherwise, if the password was supplied (but was proven to be wrong), then an error is signalled. Finally, if no password was supplied at all we render a different template. The `@template` macro here constructs a path relative to the current module's template directory.
+
+Alright, now we need to create that password template.
+
+```HTML
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Plaster</title>
+    <link rel="stylesheet" type="text/css" href="../static/plaster.css" @href="/static/plaster/plaster.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Plaster</h1>
+      <nav>
+        <a href="#" @href="plaster/edit">New</a>
+        <a href="#" @href="plaster/list">List</a>
+      </nav>
+    </header>
+    <main>
+      <form class="password-prompt" method="post">
+        <header>
+          <h2>A Password Is Required for This Paste</h2>
+        </header>
+        <input type="password" name="password" placeholder="password" autofocus required />
+        <input type="submit" value="Unlock" />
+      </form>
+    </main>
+  </body>
+</html>
+```
+
+Nothing big or unusual to see here. As discussed above we use the POST method to hide the password from the URL by default, which should be the saner option. Go ahead and try it all out too, the password protection should work just fine.
+
+Great, so we're all done, finally.
+
+Or are we? Unfortunately we're not. Think about what the password protection currently does! All it's useful for is protecting the view page, but there are other ways to gain access to the paste too! You can repaste or edit a paste too, and those will happily show you to the contents of the paste without any prompts for a password. The API endpoints aren't properly secured either-- for example, you probably shouldn't be able to edit or annotate a paste you don't have a password for.
+
+Before we get too far into a rush about security, let's take things one at a time.
 
 [Part 5](Part 5.md)
