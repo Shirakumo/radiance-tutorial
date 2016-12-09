@@ -15,7 +15,7 @@ Here are links to relevant documentation and resource pages that will be useful 
 Our ToDo list for this part looks as follows:
 
 * Tying pastes to user accounts
-* Rudimentary spam protection
+* Rudimentary protection
 * Showing pastes on a user's profile
 
 Lets try to tick it all off.
@@ -62,9 +62,121 @@ Naturally our creation function needs a new argument to account for this, too.
       paste)))
 ```
 
+Naturally we need to pass the author to it from our API endpoint. But hold on, where do we even know which user it is from? The [user interface](https://github.com/Shirakumo/radiance/blob/master/standard-interfaces.lisp#L63) does not give us anything that can do that for us. Indeed, we won't be able to get what we need with that interface alone. We need something else as well, namely authentication. For this, too, we have an interface, conveniently called [`auth`](https://github.com/Shirakumo/radiance/blob/master/standard-interfaces.lisp#L37). I trust you are able to add it to the system dependencies on your own.
 
+Using `auth:current`, we can then set the proper author on our `plaster/new` endpoint.
 
-## Spam Protection
+```common-lisp
+:author (user:username (or (auth:current) (user:get "anonymous")))
+```
+
+`auth:current` is specified to return the user object that is tied to the current request, if any. How exactly this tie works is up to the implementation, but usually involves another interface for sessions, which I won't get into now. If there is no object tied to the request, NIL is returned, which is why we `or` it with an explicit user fetch. The user interface guarantees that there's always a user object with the name `"anonymous"`. This is useful because it will always allow you to regulate the permissions of unauthorised users.
+
+With all set on the storage side already, all we need to do to close the deal on this is to actually display the information on the templates. Adding the following to the header of the edit form and to the link of each entry in the list should suffice.
+
+```HTML
+<a rel="author" lquery="(text author)">AUTHOR</a>
+```
+
+And we're done.
+
+## Rudimentary Protection
+Now that we have users and tracking thereof, we should revise our protections. For example, we probably want a permission to control whether someone can paste at all. We should also restrict editing and deleting of a paste to the author himself and perhaps administrators.
+
+First I should explain how permissions work in Radiance. Each user has a list of granted permissions, each of which is in itself a list of at least one element. Permissions can also be represented as a string with dots separating each element. Let's look at some examples.
+
+```
+plaster
+plaster paste edit own
+plaster paste edit
+```
+
+The first permission, if granted, would give you access to all of the permissions that start with the `plaster` element. The second one would allow you access to, supposedly, editing your own pastes. The third one however would allow you to edit all pastes. More specifically, each element in the permission makes it more specific, but a permission always grants everything below its lowest element.
+
+Let's look at the concrete permissions we'll want to use for Plaster:
+
+```
+plaster paste new
+plaster paste list
+plaster paste view
+plaster paste view own
+plaster paste edit
+plaster paste edit own
+plaster paste delete
+plaster paste delete own
+```
+
+Where applicable I've created both a permission for the action, and for the special case when the action is performed on your own creation. The granted default permissions for the anonymous user for example will be:
+
+```
+plaster paste new
+plaster paste view
+plaster paste list
+```
+
+Whereas a standard user should have the following ones:
+
+```
+plaster paste new
+plaster paste view
+plaster paste list
+plaster paste edit own
+plaster paste delete own
+```
+
+And an admin should just have everything.
+
+```
+plaster
+```
+
+Ok, so let's record this information.
+
+```common-lisp
+(user:add-default-permissions
+ (perm plaser paste new)
+ (perm plaser paste view)
+ (perm plaser paste list)
+ (perm plaser paste edit own)
+ (perm plaser paste delete own))
+
+(user:add-default-anonymous-permissions
+ (perm plaster paste new)
+ (perm plaster paste view)
+ (perm plaster paste list))
+```
+
+We can just add this as a toplevel form. Any new user that is created from here on out will automatically receive these permissions. The `perm` form here is a special macro that will record the permission in your module, so that it can be easily inspected. Just try it! `(describe (radiance:module :plaster))`
+
+Now we need to actually add checks into the pages and API endpoints. Once again, we'll make a short helper function to shorten things.
+
+```common-lisp
+(defun check-permission (paste action &optional (user (or (auth:current) (user:get "anonymous"))))
+  (unless (or (and paste
+                   (string= (dm:field paste "author") (user:username user))
+                   (user:check user `(plaster paste ,action own)))
+              (user:check user `(plaster paste ,action)))
+    (error 'request-denied :message (format NIL "You do not have the permission to ~a pastes."
+                                            action))))
+```
+
+We use the regular structure of our permissions to do most of the work. If a paste is given, we pass the check if the author is the same and we are allowed to edit our own pastes. Otherwise we have to check the general permission. 
+
+Now all we need to do is sprinkle calls to the function all over. For example, the edit page should have this:
+
+```common-lisp
+(if id
+    (check-permission NIL 'new)
+    (check-permission paste 'edit))
+```
+
+And the edit endpoint should have this:
+
+```common-lisp
+(check-permission paste 'edit)
+```
+
+I will let you figure out what to do with the other API endpoints and pages yourself. To close the deal on the permissions, we need one final tweak, which is to adapt the buttons on the templates to only show up if the user can even perform the related action.
 
 ## A User Profile
 
