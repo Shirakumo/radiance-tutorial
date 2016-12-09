@@ -410,4 +410,99 @@ Or are we? Unfortunately we're not. Think about what the password protection cur
 
 Before we get too far into a rush about security, let's take things one at a time.
 
+First, in order to protect the edit page in the same way as the view page, let's extract the password logic into a `call-with` scheme.
+
+```common-lisp
+(defun call-with-password-protection (function paste &optional (password (post/get "password")))
+  (cond ((or (not (eql 3 (dm:field paste "visibility")))
+             (string= (dm:field paste "password") (cryptos:pbkdf2-hash password *password-salt*)))
+         (funcall function))
+        ((or* password)
+         (error 'request-denied :message "The supplied password is incorrect."))
+        (T
+         (r-clip:process (@template "password.ctml")))))
+
+(defmacro with-password-protection ((paste &optional (password '(post/get "password"))) &body body)
+  `(call-with-password-protection
+    (lambda () ,@body) ,paste ,password))
+```
+
+Attentive readers may notice that I've changed the `/=` to a `not eql` here. This is in preparation for the use in the edit page, where the paste can be a hull, in which case the visibility field is `NIL` and thus not a number. With that out of the way, here are the modified view and edit pages:
+
+```common-lisp
+(define-page view "plaster/view/(.*)" (:uri-groups (id) :lquery "view.ctml")
+  (let* ((paste (ensure-paste id))
+         (parent (paste-parent paste)))
+    (if parent
+        (redirect (paste-url paste parent))
+        (with-password-protection (paste)
+          (r-clip:process T :paste paste
+                            :annotations (sort (paste-annotations paste)
+                                               #'< :key (lambda (a) (dm:field a "time"))))))))
+
+(define-page edit "plaster/edit(/(.*))?" (:uri-groups (NIL id) :lquery "edit.ctml")
+  (let* ((paste (if id
+                    (ensure-paste id)
+                    (dm:hull 'plaster-pastes)))
+         (parent (if id
+                     (paste-parent paste)
+                     (when (get-var "annotate") (ensure-paste (get-var "annotate"))))))
+    (with-password-protection ((or parent paste))
+      (r-clip:process T :paste paste
+                        :parent (when parent (dm:id parent))
+                        :repaste (get-var "repaste")
+                        :error (get-var "error")
+                        :message (get-var "message")))))
+```
+
+Note the careful change in the edit page. We have to password protect against the parent or requested annotation target if one exists, since we should inherit the password in the case of an annotation. Without this, one could edit or create annotations of a password protected paste without needing to supply the password. Nasty!
+
+While we're dealing with the user interface, another issue pops up though. Namely, currently the user has to type in the password again when getting to the edit page from theview page. Plus, the edit page does not prefill the previous password. This is all rather cumbersome, but we can fix it easily enough in the templates. They just need a new argument `:password` that is filled with the POST/GET variable from the view/edit pages.
+
+In the view template all the `@href`s need to be changed to supply the password in the query part. For the sake of brevity, I'll only paste one example of each here:
+
+```HTML
+<a href="#" @href="plaster/edit?annotate={0}&password={1} _id (** :password)">Annotate</a>
+```
+
+The edit template needs its password field changed slightly, too.
+
+```HTML
+<input type="password" name="password" placeholder="password" lquery="(val (** :password))" />
+```
+
+We're not quite done with that, though. We also need to supply the old password as an input to the API endpoints in order to make sure that they can check it for validity. For this we'll need another hidden input in the `actions` section:
+
+```HTML
+<input type="hidden" name="current-password" lquery="(val (** :password))" />
+```
+
+That should finally be enough to satisfy all the frontend demands. Moving on to the API endpoints, then. We don't want the password checking to happen in the `edit/delete-paste` functions, since those should be more invasive and just perform consistency checks and database operations. Instead, we'll do the password check in the actual API endpoint definitions.
+
+```common-lisp
+(defun check-password (paste password)
+  (let ((paste (ensure-paste paste))
+        (parent (paste-parent paste)))
+    (when parent (setf paste parent))
+    (when (and (= 3 (dm:field paste "visibility"))
+               (string/= (cryptos:pbkdf2-hash password *password-salt*)
+                         (dm:field (ensure-paste paste) "password")))
+      (api-error "Invalid password for paste ~a" (dm:id paste)))))
+```
+
+We again need to take care to respect the parent relationship and instead delegate the check to that, should one exist. Finally we get to incorporate the check into the API endpoints, which should be the last we have to take care of to get proper password locking. The `plaster/new` endpoints needs the following at the beginning:
+
+```common-lisp
+(when parent (check-password parent current-password))
+```
+And the other two endpoints need it after the paste has been ensured:
+
+```common-lisp
+(check-password paste current-password)
+```
+
+And that's finally it. I hope. I might have missed a detail myself that presents a vulnerability in this scheme. Protecting resources against unauthorised access can be very difficult, especially when there are many different ways of accessing the same resource. I've taken care of all the situations I've been able to think of and test out, but I can't make any absolute guarantees.
+
+This was a longer part than usual, which I think nicely illustrates the complexity of safety and protection. Once you're sure that everything is fine and you've mulled things over in your mind some more, you can move on to the next part.
+
 [Part 5](Part 5.md)
