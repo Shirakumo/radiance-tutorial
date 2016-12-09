@@ -1,22 +1,5 @@
 # Part 1 
-## Introduction
-While many things in Radiance will work very similarly to other web frameworks, others will not. Either way, you should probably follow this tutorial along step by step, and in the very least keep the [documentation](https://shirakumo.github.io/radiance) open to reference functions alongside.
-
-In this tutorial we're going to build a fully-fledged paste service from the ground up. I'm going to show this in the way that any other application might be designed. As such, we're going to start out simple and expand from there, testing things along the way.
-
-It is expected that you have a moderate understanding and amount of experience with Common Lisp, know how to create basic projects, and how to manage systems, dependencies, and packages.
-
-This tutorial was written for Radiance 1.0; it may not work for later versions and will most definitely not work for earlier versions.
-
-## Resources & Documentation
-Here are links to relevant documentation and resource pages that will be useful to refer to for this tutorial.
-
-* [Radiance](https://shirakumo.github.io/radiance)
-* [Interface Definitions](https://github.com/Shirakumo/radiance/blob/master/standard-interfaces.lisp)
-* [Clip](https://shinmera.github.io/clip)
-* [lQuery](https://shinmera.github.io/lquery)
-* [LASS](https://shinmera.github.io/LASS)
-* [Crypto-Shortcuts](https://shinmera.github.io/crypto-shortcuts)
+[Part 0](Part 0.md)
 
 ## A Short Roadmap
 A first step should probably be to consider what kind of capabilities the application should have and in what way they are presented to the user. A paste service is relatively clearly defined, so this isn't much of a problem.

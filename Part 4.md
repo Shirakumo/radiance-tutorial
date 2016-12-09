@@ -1,5 +1,5 @@
 # Part 4
-[Part 1](Part 1.md) [Part 2](Part 2.md) [Part 3](Part 3.md)
+[Part 0](Part 0.md) [Part 1](Part 1.md) [Part 2](Part 2.md) [Part 3](Part 3.md)
 
 ## Resources & Documentation
 Here are links to relevant documentation and resource pages that will be useful to refer to for this tutorial.
