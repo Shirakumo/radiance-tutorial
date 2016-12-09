@@ -111,12 +111,23 @@ Now that creation is taking care of, we also need to handle deletion. If a paren
   (db:with-transaction ()
     (let ((paste (ensure-paste paste)))
       (mapc #'dm:delete (paste-annotations paste))
-      (db:remove 'plaster-annotations (db:query (:= 'paste (dm:id paste))))
-      (db:remove 'plaster-annotations (db:query (:= 'annotation (dm:id paste))))
+      (db:remove 'plaster-annotations
+                 (db:query (:or (:= 'paste (dm:id paste))
+                                (:= 'annotation (dm:id paste)))))
+      (dm:delete paste)
       paste)))
+
+(define-api plaster/delete (id &optional current-password) ()
+  (let ((paste (ensure-paste id)))
+    (delete-paste paste)
+    (if (string= "true" (post/get "browser"))
+        (redirect (uri-to-url "plaster/edit"
+                              :representation :external
+                              :query '(("message" . "Paste deleted"))))
+        (api-output `(("_id" . ,(dm:id paste)))))))
 ```
 
-Again we stuff everything into a transaction to ensure consistency. After all, it might happen that someone annotates right while we delete the parent paste, in which case things might go awry. With the transaction in place, either one of them blocks before the other can go, or one of them always fails. Either way, our model stays sound.
+Again we stuff everything into a transaction to ensure consistency. After all, it might happen that someone annotates right while we delete the parent paste, in which case things might go awry. With the transaction in place, either one of them blocks before the other can go, or one of them always fails. Either way, our model stays sound. As illustrated, the `db:query` selector also supports logical combination of tests which we can use to drop all relevant records at once, rather than having to go through twice.
 
 Next we'll also want to update our `api-paste-output` function to redirect to the parent paste in case our paste is an annotation.
 
