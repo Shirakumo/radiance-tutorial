@@ -135,11 +135,11 @@ Ok, so let's record this information. We need to stuff it into another trigger, 
 ```common-lisp
 (define-trigger user:ready ()
   (user:add-default-permissions
-   (perm plaser paste new)
-   (perm plaser paste view)
-   (perm plaser paste list)
-   (perm plaser paste edit own)
-   (perm plaser paste delete own))
+   (perm plaster paste new)
+   (perm plaster paste view)
+   (perm plaster paste list)
+   (perm plaster paste edit own)
+   (perm plaster paste delete own))
 
   (user:grant
    "anonymous"
@@ -211,5 +211,192 @@ Being able to call arbitrary functions from the templates makes things very hand
 Don't forget to adjust the nav in the head on the edit and list templates, too!
 
 ## A User Profile
+Radiance offers yet another interface that is of relevance here, namely [`profile`](https://github.com/Shirakumo/radiance/blob/master/standard-interfaces.lisp#L92). This interface is responsible for expanding the users a bit for usage in any kind of software that actually wants to present user profiles. As such it gives you access to arbitrary user fields, an avatar, and panels. The panels are arbitrary templates that you can render onto the profile page of a user.
+
+Given this, there are two ways for us to offer a profile page for users on our service. We can either define a profile panel that lists all the pastes, or define our own page entirely. Panels lend themselves well for information that is directly tied to the user like posting stats and other information. Actual post objects like our pastes here should probably be on a separate page however.
+
+We'll be doing both-- namely, we'll create a new page that lists a user's pastes, and we'll add a small panel to the user profile that shows some paste stats. The actual user paste page will be very similar to the list page we've made before. So, let's create a `user.ctml`.
+
+```HTML
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Plaster</title>
+    <link rel="stylesheet" type="text/css" href="../static/plaster.css" @href="/static/plaster/plaster.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Plaster</h1>
+      <nav>
+        <c:when test="(plaster::permitted :new)">
+          <a href="#" @href="plaster/edit">New</a>
+        </c:when>
+        <c:when test="(plaster::permitted :list)">
+          <a href="#" @href="plaster/list">List</a>
+        </c:when>
+      </nav>
+    </header>
+    <main>
+      <section class="paste-list user">
+        <header>
+          <img alt="Avatar" src="#" lquery="(attr :src (profile:avatar user 100))" />
+          <h2><a href="#" @href="<profile page {0}> user" lquery="(text username)">USERNAME</a>'s Pastes</h2>
+        </header>
+        <c:when test="(< 0 page)">
+          <a class="button newer" href="#" @href="plaster/user/{0}/{1} username (1- page)">Newer</a>
+        </c:when>
+        <ul iterate="pastes">
+          <li>
+            <a href="#" @href="plaster/view/{0} _id">
+              <span class="id" lquery="(text _id)">ID</span>
+              <span class="title" lquery="(text title)">TITLE</span>
+              <time lquery="(time time)" />
+            </a>
+          </li>
+        </ul>
+        <c:when test="has-more">
+          <a class="button older" href="#" @href="plaster/user/{0}/{1} username (1+ page)">Older</a>
+        </c:when>
+      </section>
+    </main>
+  </body>
+</html>
+```
+
+There are some interesting points to mention here. First, we employ the `profile:avatar` function and change the `src` attribute to that using the lQuery `attr` function. The avatar function requires you to pass a "suitable size" for the avatar and will try (but not guarantee!) to return something close to that size. While you can always resize the image with CSS, you shouldn't set it unreasonably large as that might significantly slow down page speed.
+
+Second, in order to link to the user's profile we're using a different kind of pattern: `<profile page {0}>`. A pattern like that is called a resource and is resolved through Radiance's resource system. The resource system allows you to access certain relevant information of a module or interface through a standardised mechanism. Resources are dispatched by the module you're requesting information from, and the type of resource you need. The page resource type we're employing here is specified to always return a URI to the requested page. For the profile interface, this means a URI to the page that displays the given user's profile. You can try it out at the REPL too, using the `resource` function.
+
+Everything else that's in the template should be familiar already. Time to create the corresponding page.
+
+```common-lisp
+(define-page user "plaster/user/(.*)(/(.*))?" (:uri-groups (username NIL page) :lquery "user.ctml")
+  (check-permission 'user)
+  (let* ((page (or (when page (parse-integer page :junk-allowed T)) 0))
+         (user (user:get username)))
+    (unless user
+      (error 'request-not-found :message (format NIL "No such user ~s." username)))
+    (let ((pastes (dm:get 'plaster-pastes
+                          (if (and (auth:current) (or (eql (auth:current) user)
+                                                      (user:check (auth:current) '(perm plaster))))
+                              (db:query (:= 'author username))
+                              (db:query (:and (:= 'author username)
+                                              (:= 'visibility 1))))
+                          :sort '((time :DESC))
+                          :skip (* page *pastes-per-page*)
+                          :amount *pastes-per-page*)))
+      (r-clip:process T :pastes pastes
+                        :user user
+                        :username (user:username user)
+                        :page page
+                        :has-more (<= *pastes-per-page* (length pastes))))))
+```
+
+The primary difference to the `list` page is that I'm fetching the user object according to the URL argument, error out if it can't be found, and then display a different number of pastes depending on whether the user views their own page or are an administrator. After all, it is only sensible that you should be able to view all of your own pastes, not just the public ones. Don't forget to add the permission to the `user:ready` trigger.
+
+You should be able to view [anonymous' profile](http://localhost:8080/!/plaster/user/anonymous) now. But, we're not quite done yet. For a first step we'll want to turn the `author` links we have in the `view` and `list` pages into actually useful ones. Adding the matching `@href` attribute should already do the trick.
+
+```HTML
+@href="plaster/user/{0} author"
+```
+
+Finally we should have a button that lets you visit your own profile, or redirects you to the login page should you not be logged in already. We can do that, too.
+
+```HTML
+<c:if test="(auth:current)">
+  <c:then><c:when test="(plaster::permitted :user)">
+    <a href="#" @href="plaster/user/{0} (user:username (auth:current))">My Pastes</a>
+  </c:when></c:then>
+  <c:else>
+    <a href="#" @href="<auth page login #>">Login</a>
+  </c:else>
+</c:if>
+```
+
+A bit more involved than most template logic we've seen so far, but still not immensely difficult to parse. If the user is not logged in, a link to the login page is displayed. This happens through a resource request again, just like the profile link. If the user is logged in and is allowed to view a profile's pastes, we present the link to their own page. It's as simple as that. 
+
+You might be wondering what the `#` is for in the `auth` resource request. That argument is specially treated by the interface and tells it to redirect back to the page we are currently from once the login is complete.
+
+Alright, I suppose it is high time that we actually played around with a user account that isn't anonymous. We're going to do some interface stuff to create a new account for ourselves, and then tie our current session to it to bypass the traditional login screen. First, creating a new user happens with the `user:get` function, we just have to tell it to create a new user if it doesn't exist yet.
+
+```common-lisp
+(user:get "pester" :if-does-not-exist :create)
+```
+
+Now that we have a user, we can tell the auth interface to associate our session with it. First, let's look at what kinds of sessions we have:
+
+```common-lisp
+(session:list)
+```
+
+This should return a list of one session object-- namely the one you've been using to access the site with your own browser. We can now use this object and tell auth that it is logged in.
+
+```common-lisp
+(auth:associate (user:get "pester") (first (session:list)))
+```
+
+Once you refresh the page in your browser now, you should see by the changed button in the header that you've been logged in. Miraculous! Using `user:grant` and `user:revoke` you can now also play around with the various permissions and check that everything works as intended.
+
+Finally we'll want to add a user profile panel. Time for one last, final template, `user-panel.ctml`.
+
+```HTML
+<link rel="stylesheet" type="text/css" href="../static/panel.css" @href="/static/plaster/panel.css" />
+<section class="paste-list panel">
+  <h2>Recent Pastes</h2>
+  <ul iterate="pastes">
+    <li>
+      <a href="#" @href="plaster/view/{0} _id">
+        <span class="id" lquery="(text _id)">ID</span>
+        <span class="title" lquery="(text title)">TITLE</span>
+        <time lquery="(time time)" />
+      </a>
+    </li>
+  </ul>
+</section>
+```
+
+Since we need something that integrates into a larger template, we don't need all of the HTML boilerplate, just the actual content. We will however link to another, much smaller stylesheet, in order to make things not look quite as gross as they would being completely unstyled. Can you remember how we created the CSS file the first time around?
+
+That's right, create a file `panel.lass` in the `static/` directory, fill it with some LASS content, and compile it down.
+
+```common-lisp
+(.paste-list
+ (ul
+  :list-style none
+  :padding 0
+  :margin 0
+  (li (a :background none
+         :display flex
+         :align-items center
+         :color (rgb 0 0 0)
+         :font-weight normal
+         :text-decoration none
+         (.id :min-width 50px)
+         (.title :flex-grow 1))
+      ("a:hover"
+       :background (rgb 220 220 220)))))
+```
+
+The last thing we'll need for our coup de grâce to be complete is the actual panel definition. The profile interface specifies a `profile:define-panel` macro that we can use for exactly this purpose. Observe and recreate.
+
+```common-lisp
+(profile:define-panel pastes (:user user :lquery "user-panel.ctml")
+  (let ((pastes (dm:get 'plaster-pastes
+                        (if (and (auth:current) (or (eql (auth:current) user)
+                                                    (user:check (auth:current) '(perm plaster))))
+                            (db:query (:= 'author (user:username user)))
+                            (db:query (:and (:= 'author (user:username user))
+                                            (:= 'visibility 1))))
+                        :sort '((time :DESC))
+                        :amount *pastes-per-page*)))
+    (r-clip:process T :pastes pastes)))
+```
+
+This is very, very similar in behaviour to the `define-page` macro we already know well. Interesting is the addition of the `:user` option that lets us bind the current user object to a variable. The rest is mostly just a short transcription of what happens on the `user` page. Hit `C-c C-c` and stare at the magnificence of the [profile panel](http://localhost:8080/!/user/anonymous/pastes).
+
+Truly stunning.
+
+Once you've recovered from being awe-struck, and have ascertained that you have properly understood everything in this part, you may move on to the next one, where we'll start to slowly wrap things up.
 
 [Part 6](Part 6.md)
