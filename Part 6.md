@@ -14,11 +14,18 @@ Here are links to relevant documentation and resource pages that will be useful 
 ## A Short Roadmap
 This is the last part that deals with actual development of our application. The final part is one from the perspective of an administrator.
 
+* A capable editor with syntax highlighting
 * Missing API endpoints
 * Configuration and user settings
-* A capable editor with syntax highlighting
 
 Let's wrap up our development, then.
+
+## Syntax Highlighting
+What we've been missing all this time is syntax highlighting. I've avoided this topic, because it's something that is much more on the side of the client than on the side of the server. Indeed, we're going to use an already available JavaScript solution to do the markup and editing support for us for the most part. We're going to employ the help of [CodeMirror](http://codemirror.net/), which is an excellent editor solution.
+
+However, in order to properly be able to mark up the text, we need a new field on our pastes to track what kind of data it is supposed to be. 
+
+STUFFFFFFF
 
 ## Missing API Endpoints
 We've created API endpoints to handle the necessary data manipulation, but we don't have API equivalents of our view, list, and user pages yet. The logic won't be much to look at, but thinking about sending back paste data does raise one issue that I've forgotten about.
@@ -30,7 +37,7 @@ Namely, currently we're outputting all the fields from a paste. This includes th
   (let ((table (make-hash-table :test 'eql)))
     (flet ((copy (field)
              (setf (gethash field table) (dm:field paste field))))
-      (mapcar #'copy '("title" "time" "author" "visibility" "text")))
+      (mapcar #'copy '("title" "time" "author" "visibility" "text" "type")))
     (when include-annotations
       (setf (gethash "annotations" table)
             (mapcar #'reformat-paste (paste-annotations paste))))
@@ -85,13 +92,10 @@ This looks a bit daunting at first, indeed. It starts with your standard argumen
 
 Naturally you could add a bunch more endpoints and arguments to allow more flexible querying of which exact results you would like to see. For now, I will consider this sufficient and leave the extension of this aspect of the application up to you.
 
-## Configuration
-
-## Syntax Highlighting
-What we've been missing all this time is syntax highlighting. I've avoided this topic, because it
-
 ## User Settings
 
+
+## Configuration
 
 
 [Part 7](Part 7.md)
