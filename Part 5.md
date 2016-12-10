@@ -130,20 +130,22 @@ And an admin should just have everything.
 plaster
 ```
 
-Ok, so let's record this information.
+Ok, so let's record this information. We need to stuff it into another trigger, because we can only perform actions on users once the user system has declared itself ready and loaded (usually when the database is ready).
 
 ```common-lisp
-(user:add-default-permissions
- (perm plaser paste new)
- (perm plaser paste view)
- (perm plaser paste list)
- (perm plaser paste edit own)
- (perm plaser paste delete own))
+(define-trigger user:ready ()
+  (user:add-default-permissions
+   (perm plaser paste new)
+   (perm plaser paste view)
+   (perm plaser paste list)
+   (perm plaser paste edit own)
+   (perm plaser paste delete own))
 
-(user:add-default-anonymous-permissions
- (perm plaster paste new)
- (perm plaster paste view)
- (perm plaster paste list))
+  (user:grant
+   "anonymous"
+   (perm plaster paste new)
+   (perm plaster paste view)
+   (perm plaster paste list)))
 ```
 
 We can just add this as a toplevel form. Any new user that is created from here on out will automatically receive these permissions. The `perm` form here is a special macro that will record the permission in your module, so that it can be easily inspected. Just try it! `(describe (radiance:module :plaster))`
@@ -151,32 +153,62 @@ We can just add this as a toplevel form. Any new user that is created from here 
 Now we need to actually add checks into the pages and API endpoints. Once again, we'll make a short helper function to shorten things.
 
 ```common-lisp
-(defun check-permission (paste action &optional (user (or (auth:current) (user:get "anonymous"))))
-  (unless (or (and paste
-                   (string= (dm:field paste "author") (user:username user))
-                   (user:check user `(plaster paste ,action own)))
-              (user:check user `(plaster paste ,action)))
+(defun permitted (action &optional paste (user (or (auth:current) (user:get "anonymous"))))
+  (if (listp action)
+      (loop for a in action thereis (permitted a paste user))
+      (or (and paste
+               (equal (dm:field paste "author") (user:username user))
+               (user:check user `(plaster paste ,action own)))
+          (user:check user `(plaster paste ,action)))))
+
+(defun check-permission (action &optional paste (user (or (auth:current) (user:get "anonymous"))))
+  (unless (permitted action paste user)
     (error 'request-denied :message (format NIL "You do not have the permission to ~a pastes."
                                             action))))
 ```
 
-We use the regular structure of our permissions to do most of the work. If a paste is given, we pass the check if the author is the same and we are allowed to edit our own pastes. Otherwise we have to check the general permission. 
+We use the regular structure of our permissions to do most of the work. If a paste is given, we pass the check if the author is the same and we are allowed to edit our own pastes. Otherwise we have to check the general permission. I've also split it into a predicate and an erroring check. The former will become useful shortly.
 
-Now all we need to do is sprinkle calls to the function all over. For example, the edit page should have this:
+Now all we need to do is sprinkle calls to the function all over. Most of the places should be straightforward, with the exception of the edit page, which needs a bit more special treatment. It is also the reason why I've allowed lists of action tests in `permitted`.
 
 ```common-lisp
 (if id
-    (check-permission NIL 'new)
-    (check-permission paste 'edit))
+    (check-permission '(edit delete) paste)
+    (check-permission 'new))
 ```
 
-And the edit endpoint should have this:
+This is necessary because it might be plausible to have a setup where one can delete pastes, but not edit them, or vice-versa. For example, a janitor might have permissions to delete spam, but shouldn't be able to edit random pastes. Anyway, in other places like the edit endpoint, the check is simply something like this:
 
 ```common-lisp
-(check-permission paste 'edit)
+(check-permission 'edit paste)
 ```
 
 I will let you figure out what to do with the other API endpoints and pages yourself. To close the deal on the permissions, we need one final tweak, which is to adapt the buttons on the templates to only show up if the user can even perform the related action.
+
+First up, `view.ctml`. All we need to do is wrap the action buttons and the header nav buttons in a `<c:when>` with a test that checks if it's permitted. Since we created a predicate function exactly for this above, we can use it. Thus, the new actions of the main paste should look like this:
+
+```HTML
+<c:when test="(plaster::permitted :new)">
+  <a href="#" @href="plaster/edit?annotate={0}&password={1} _id (** :password)">Annotate</a>
+  <a href="#" @href="plaster/edit/{0}?repaste&password={1} _id (** :password)">Repaste</a>
+</c:when>
+<c:when test="(plaster::permitted :edit *)">
+  <a href="#" @href="plaster/edit/{0}?password={1} _id (** :password)">Edit</a>
+</c:when>
+```
+
+Being able to call arbitrary functions from the templates makes things very handy, if perhaps a bit verbose at times. All that's left is to add a similar test to `edit.ctml`'s submission buttons. We only need to change the `Delete` and `Save` ones too, since the `Post` case is already blocked by a huge error page.
+
+```HTML
+<c:when test="(plaster::permitted :delete *)">
+  <input type="submit" @formaction="/api/plaster/delete" value="Delete" />
+</c:when>
+<c:when test="(plaster::permitted :edit *)">
+  <input type="submit" @formaction="/api/plaster/edit" value="Save" />
+</c:when>
+```
+
+Don't forget to adjust the nav in the head on the edit and list templates, too!
 
 ## A User Profile
 
