@@ -289,6 +289,8 @@ Now that we have pages going, we'll need to set up an API endpoint to paste to. 
 
 Since API endpoint names need to be globally unique and can't contain any parsable information, there's no need for a name and a URI like there is for a page definition. Instead, we get a simplified lambda-list that specifies the arguments that the endpoint receives, either through GET or POST variables. Last, we get another list of options, just like for the page definition.
 
+You may be wondering why API endpoints don't allow regex-based parameters in their names like pages do. The primary reason is that doing so would ambiguate things as we already have a way to specify arguments by GET/POST parameters. Whereas for pages it makes sense to have a more human-readable URL, API endpoints are aimed at programmatical interfaces, where the construction of the parameters should be straightforward. If you really want to have parsable API endpoints you can still get them, at the cost of forsaking Radiance's integrated support for API handling. After all, you can always just define a page of your own and do absolutely anything you want with it.
+
 So far this endpoint doesn't do anything except check that it gets the required `text` argument somehow. Not very useful. Indeed, we'll need to get access to a database to store our information in. Radiance provides for that as well, by way of an interface. Interfaces are a form of contract for the signatures of symbols in a package. What this means is that an interface is a specification that defines the signatures and behaviour of functions, variables, macros, etc. within a package. When something wants to make use of an interface's functionality, a specific implementation of that interface is then loaded.
 
 A database interface is perhaps the most obvious and sensible example. After all, there are many different types of databases, but all of them can be used in a very similar fashion for the most part. As such it makes sense to define an interface for databases in general, and let the choice of the specific database up to someone else-- usually the administrator of a final Radiance installation.
@@ -385,10 +387,11 @@ The only things changed are the `input` and `textarea` elements, which now have 
 
 You should now be able to visit [the /new page](http://localhost:8080/!/plaster/new), create a paste, and view it. And with that we have achieved the goals we've set for the first part of this tutorial.
 
+## Conclusion
 Despite this seeming like a small goal to reach, we've touched on many different parts already now. We've looked at how to start out with a new module, how to define pages and API endpoints, how to interface and get started with a database, how to integrate Clip templates and how to use them, and finally how to use LASS for CSS compilation. If you're feeling a bit overwhelmed, don't worry. Try going through this part again and look at the documentation of the associated systems. While there are many parts, the ways in which they function are not altogether complicated.
 
 In case you're encountering error pages and you'd like to get something more useful than a mere message, you can `(setf radiance:*debugger* T)`, which will cause the debugger to be invoked on request errors. With Slime and some looking around, I'm sure that should help you figure out what went wrong rather quickly.
 
-Once you think that you've understood it all well and proper enough, you can move on to the second part, in which we'll flesh things out a bit by adding some more actions. 
+We've taken our first, hopefully successful, steps building our application now. Hopefully things aren't looking too daunting to you yet. Once you think that you've understood it all well and proper enough, you can move on to the second part, in which we'll flesh things out a bit by adding some more actions. 
 
 [Part 2](Part 2.md)

@@ -404,6 +404,7 @@ This is very, very similar in behaviour to the `define-page` macro we already kn
 
 Truly stunning.
 
-Once you've recovered from being awe-struck, and have ascertained that you have properly understood everything in this part, you may move on to the next one, where we'll start to slowly wrap things up.
+## Conclusion
+Once you've recovered from being awe-struck and have ascertained that you have properly understood everything in this part, you may move on to the next one. There, we'll start to slowly wrap things up by adding all the rest of the missing functionality.
 
 [Part 6](Part 6.md)

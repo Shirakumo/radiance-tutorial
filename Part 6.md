@@ -350,5 +350,6 @@ Finally, using the configuration has another advantage, in that the possible con
 
 ## User Settings
 
+## Conclusion
 
 [Part 7](Part 7.md)

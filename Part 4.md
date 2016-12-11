@@ -505,6 +505,7 @@ And the other two endpoints need it after the paste has been ensured:
 
 And that's finally it. I hope. I might have missed a detail myself that presents a vulnerability in this scheme. Protecting resources against unauthorised access can be very difficult, especially when there are many different ways of accessing the same resource. I've taken care of all the situations I've been able to think of and test out, but I can't make any absolute guarantees.
 
-This was a longer part than usual, which I think nicely illustrates the complexity of safety and protection. Once you're sure that everything is fine and you've mulled things over in your mind some more, you can move on to the next part.
+## Conclusion
+This was a longer part than usual, which I think nicely illustrates the complexity of safety and protection. Once you're sure that everything is fine and you've mulled things over in your mind some more, you can move on to the next part, in which we'll finally introduce user accounts to the system.
 
 [Part 5](Part 5.md)

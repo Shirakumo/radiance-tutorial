@@ -267,4 +267,7 @@ Finally we need to update our stylesheet to account for the new annotations sect
 
 And that's all she wrote. You can now try out annotating. If you did it all right, it should work marvellously. If not, retrace your steps, compare the code, and I'm sure you'll be able to find a mistake soon enough.
 
+## Conclusion
+Adding more functionality to an application once the basic idea is in place is not that much of a problem. Most of what we're doing now is not especially Radiance specific either and instead delves more into the general web development practises. In the next part we'll look at a public paste list, and some first protection against unauthorised access.
+
 [Part 4](Part 4.md)
