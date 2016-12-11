@@ -93,7 +93,7 @@ The actual page to present this isn't too complicated either:
 ```common-lisp
 (defparameter *pastes-per-page* 25)
 
-(define-page list "plaster/list(/(.*))?" (:uri-groups (NIL page) :lquery "list.ctml")
+(define-page list "plaster/list(?:/(.*))?" (:uri-groups (page) :lquery "list.ctml")
   (let* ((page (or (when page (parse-integer page :junk-allowed T)) 0))
          (pastes (dm:get 'plaster-pastes (db:query :all)
                          :sort '((time :DESC))
@@ -442,7 +442,7 @@ Attentive readers may notice that I've changed the `/=` to a `not eql` here. Thi
                             :annotations (sort (paste-annotations paste)
                                                #'< :key (lambda (a) (dm:field a "time"))))))))
 
-(define-page edit "plaster/edit(/(.*))?" (:uri-groups (NIL id) :lquery "edit.ctml")
+(define-page edit "plaster/edit(?:/(.*))?" (:uri-groups (id) :lquery "edit.ctml")
   (let* ((paste (if id
                     (ensure-paste id)
                     (dm:hull 'plaster-pastes)))

@@ -51,7 +51,7 @@ Repasting is useful when you want to create a new paste based on an old one. It'
 Thinking about it, all the repasting needs to do is pre-fill the fields of the edit page with the information of a previous paste and show the `Post` button instead of the `Save` one. We can solve this neatly by changing our `<c:if>` test slightly and adding a new GET argument.
 
 ```common-lisp
-(define-page edit "plaster/edit(/(.*))?" (:uri-groups (NIL id) :lquery "edit.ctml")
+(define-page edit "plaster/edit(?:/(.*))?" (:uri-groups (id) :lquery "edit.ctml")
   (let ((paste (if id
                    (ensure-paste id)
                    (dm:hull 'plaster-pastes))))
@@ -185,7 +185,7 @@ Here we're using the `make-url` shorthand function to directly construct a URI, 
                             #'< :key (lambda (a) (dm:field a "time")))))
     (r-clip:process T :paste paste :annotations annotations)))
 
-(define-page edit "plaster/edit(/(.*))?" (:uri-groups (NIL id) :lquery "edit.ctml")
+(define-page edit "plaster/edit(?:/(.*))?" (:uri-groups (id) :lquery "edit.ctml")
   (let ((paste (if id
                    (ensure-paste id)
                    (dm:hull 'plaster-pastes))))

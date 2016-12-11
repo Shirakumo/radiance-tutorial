@@ -278,7 +278,7 @@ Second, in order to link to the user's profile we're using a different kind of p
 Everything else that's in the template should be familiar already. Time to create the corresponding page.
 
 ```common-lisp
-(define-page user "plaster/user/(.*)(/(.*))?" (:uri-groups (username NIL page) :lquery "user.ctml")
+(define-page user "plaster/user/(.*)(?:/(.*))?" (:uri-groups (username page) :lquery "user.ctml")
   (check-permission 'user)
   (let* ((page (or (when page (parse-integer page :junk-allowed T)) 0))
          (user (user:get username)))
