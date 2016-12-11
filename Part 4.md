@@ -11,6 +11,7 @@ Here are links to relevant documentation and resource pages that will be useful 
 * [LASS](https://shinmera.github.io/LASS)
 * [Crypto-Shortcuts](https://shinmera.github.io/crypto-shortcuts)
 * [CodeMirror](http://codemirror.net/doc/manual.html)
+* [Ubiquitous](https://shinmera.github.io/ubiquitous)
 
 ## A Short Roadmap
 Well then. Our homework for today is:

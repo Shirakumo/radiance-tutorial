@@ -11,14 +11,39 @@ Here are links to relevant documentation and resource pages that will be useful 
 * [LASS](https://shinmera.github.io/LASS)
 * [Crypto-Shortcuts](https://shinmera.github.io/crypto-shortcuts)
 * [CodeMirror](http://codemirror.net/doc/manual.html)
+* [Ubiquitous](https://shinmera.github.io/ubiquitous)
 
 ## A Short Roadmap
 On the menu for today we have...
 
+* Raw paste view
 * Repasting
 * Annotating pastes
 
 Order up!
+
+## Raw Paste View
+This one is very easy. We'll add a new page that just retrieves the paste and returns its text field.
+
+```common-lisp
+(define-page raw "plaster/view/(.*)/raw" (:uri-groups (id))
+  (setf (content-type *response*) "text/plain")
+  (dm:field (ensure-paste id) "text"))
+```
+
+And done. It is important not to forget to set the content-type of the response to `text/plain`, lest the paste service could be abused to host HTML pages. Note also that despite us defining a new page that has the same URI prefix as the `view` page, the dispatching will still work just fine. This is due to Radiance's URI precedence ordering, which you can read up on in detail [in the documentation](https://shirakumo.github.io/radiance/#RADIANCE-CORE:URI-DISPATCHER>).
+
+Should you ever encounter a situation where the automatic ordering is not doing what you need, you can instead pass an explicit priority number to your page definition like so:
+
+```common-lisp
+(define-page (raw 1000) ...)
+```
+
+Finally we also want a lil' link to the raw view of the pastes, and we can achieve this with another `<a>` in the actions nav of our view template.
+
+```HTML
+<a href="#" @href="plaster/view/{0}/raw _id">Raw</a>
+```
 
 ## Repasting
 Repasting is useful when you want to create a new paste based on an old one. It's especially useful when you don't have permission to edit an old paste, but that's for later.
@@ -206,6 +231,7 @@ And second, a new section below our `<c:using>` tag that will be used to display
           <textarea name="text" placeholder="Paste something here" readonly
                     lquery="(text text)"></textarea>
           <nav class="actions">
+            <a href="#" @href="plaster/view/{0} _id">Raw</a>
             <a href="#" @href="plaster/edit/{0}?repaste _id">Repaste</a>
             <a href="#" @href="plaster/edit/{0} _id">Edit</a>
           </nav>

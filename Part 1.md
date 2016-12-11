@@ -11,6 +11,7 @@ Here are links to relevant documentation and resource pages that will be useful 
 * [LASS](https://shinmera.github.io/LASS)
 * [Crypto-Shortcuts](https://shinmera.github.io/crypto-shortcuts)
 * [CodeMirror](http://codemirror.net/doc/manual.html)
+* [Ubiquitous](https://shinmera.github.io/ubiquitous)
 
 ## A Short Roadmap
 A first step should probably be to consider what kind of capabilities the application should have and in what way they are presented to the user. A paste service is relatively clearly defined, so this isn't much of a problem.
@@ -77,7 +78,7 @@ The last file that we've referenced so far is `frontend.lisp`, which you can fil
 (in-package #:plaster)
 ```
 
-Make sure to reload your ASDF/Quicklisp system cache and load your system.
+Make sure to reload your ASDF/Quicklisp system cache and load your system from the REPL.
 
 ```common-lisp
 (ql:register-local-projects)
