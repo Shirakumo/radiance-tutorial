@@ -222,6 +222,8 @@ And just before the closing body tag we add some scripts:
 
 The reason why you want to add those at the bottom is that the browser can already start rendering the DOM before it has to load the JS files and evaluate them. That should lead to a much more responsive page, even if it appears without the CodeMirror highlighting for a bit. With that, everything is set to go. Note also that everything we've written so far will happily work without JavaScript enabled. It'll lack some of the pizzazz, but it'll still work just as fine.
 
+But wait! What about that suspicious `staticUrl`? BLA BLA ELABORATE AND FIX
+
 ## Missing API Endpoints
 We've created API endpoints to handle the necessary data manipulation, but we don't have API equivalents of our view, list, and user pages yet. The logic won't be much to look at, but thinking about sending back paste data does raise one issue that I've forgotten about.
 
