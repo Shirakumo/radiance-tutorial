@@ -10,6 +10,7 @@ Here are links to relevant documentation and resource pages that will be useful 
 * [lQuery](https://shinmera.github.io/lquery)
 * [LASS](https://shinmera.github.io/LASS)
 * [Crypto-Shortcuts](https://shinmera.github.io/crypto-shortcuts)
+* [CodeMirror](http://codemirror.net/doc/manual.html)
 
 ## A Short Roadmap
 Well then. Our homework for today is:

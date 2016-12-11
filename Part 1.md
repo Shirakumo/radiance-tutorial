@@ -1,6 +1,17 @@
 # Part 1 
 [Part 0](Part 0.md)
 
+## Resources & Documentation
+Here are links to relevant documentation and resource pages that will be useful to refer to for this tutorial.
+
+* [Radiance](https://shirakumo.github.io/radiance)
+* [Interface Definitions](https://github.com/Shirakumo/radiance/blob/master/standard-interfaces.lisp)
+* [Clip](https://shinmera.github.io/clip)
+* [lQuery](https://shinmera.github.io/lquery)
+* [LASS](https://shinmera.github.io/LASS)
+* [Crypto-Shortcuts](https://shinmera.github.io/crypto-shortcuts)
+* [CodeMirror](http://codemirror.net/doc/manual.html)
+
 ## A Short Roadmap
 A first step should probably be to consider what kind of capabilities the application should have and in what way they are presented to the user. A paste service is relatively clearly defined, so this isn't much of a problem.
 

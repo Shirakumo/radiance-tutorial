@@ -8,16 +8,6 @@ It is expected that you have a moderate understanding and amount of experience w
 
 This tutorial was written for Radiance 1.0; it may not work for later versions and will most definitely not work for earlier versions.
 
-## Resources & Documentation
-Here are links to relevant documentation and resource pages that will be useful to refer to for this tutorial.
-
-* [Radiance](https://shirakumo.github.io/radiance)
-* [Interface Definitions](https://github.com/Shirakumo/radiance/blob/master/standard-interfaces.lisp)
-* [Clip](https://shinmera.github.io/clip)
-* [lQuery](https://shinmera.github.io/lquery)
-* [LASS](https://shinmera.github.io/LASS)
-* [Crypto-Shortcuts](https://shinmera.github.io/crypto-shortcuts)
-
 ## Getting Set Up
 It is expected that you have a working Common Lisp environment including Quicklisp and ASDF going. If you do not, have a look at [Portacle](https://shinmera.github.io/portacle) for a quick setup.
 
