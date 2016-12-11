@@ -212,6 +212,11 @@ Being able to call arbitrary functions from the templates makes things very hand
 
 Don't forget to adjust the nav in the head on the edit and list templates, too!
 
+## Rate Limiting
+We should probably also take care not to allow a spammer to hammer out as many pastes as they want within no time.
+
+FIXME: WHERE THE FUCK DOES THIS GO???
+
 ## A User Profile
 Radiance offers yet another interface that is of relevance here, namely [`profile`](https://github.com/Shirakumo/radiance/blob/master/standard-interfaces.lisp#L92). This interface is responsible for expanding the users a bit for usage in any kind of software that actually wants to present user profiles. As such it gives you access to arbitrary user fields, an avatar, and panels. The panels are arbitrary templates that you can render onto the profile page of a user.
 
