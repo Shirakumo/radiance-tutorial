@@ -11,6 +11,7 @@ Here are links to relevant documentation and resource pages that will be useful 
 * [LASS](https://shinmera.github.io/LASS)
 * [Crypto-Shortcuts](https://shinmera.github.io/crypto-shortcuts)
 * [CodeMirror](http://codemirror.net/doc/manual.html)
+* [Ubiquitous](https://shinmera.github.io/ubiquitous)
 
 ## A Short Roadmap
 This is the last part that deals with actual development of our application. The final part is one from the perspective of an administrator.
@@ -222,7 +223,23 @@ And just before the closing body tag we add some scripts:
 
 The reason why you want to add those at the bottom is that the browser can already start rendering the DOM before it has to load the JS files and evaluate them. That should lead to a much more responsive page, even if it appears without the CodeMirror highlighting for a bit. With that, everything is set to go. Note also that everything we've written so far will happily work without JavaScript enabled. It'll lack some of the pizzazz, but it'll still work just as fine.
 
-But wait! What about that suspicious `staticUrl`? BLA BLA ELABORATE AND FIX
+But wait! What about that suspicious `staticUrl`? Indeed, that is not the proper way to go about this. It'll work out for your particular setup, but it'll cease to work as soon as you were to try and run this on a server where the root path is not available for whatever reason or indeed where static resources are in a completely different place altogether. In order to do this right, we need to ask Radiance's routing system for help, just like we did for all the links in the HTML templates so far.
+
+Fortunately, we don't need to ask Radiance for help with each separate URL. It promises us that as soon as we have the proper external URL that points to the root static directory of a module, everything afterwards must stay the same. In other words, a transformation that turns a URI `/static/foo/bar/baz` into an URL like `http://cdn.com/something/else/bar/baz` is legal, but a transform that turns it into something like `http://cdn.com/something/baz` is not because the `bar/baz` part is not there verbatim. Thus, it suffices if Radiance tells us what `/static/plaster/codemirror/` translates into and we can just concatenate from there.
+
+The best way to do this is to emit a placeholder element in the header of the template that just contains the link we want.
+
+```HTML
+<link id="static-codemirror-root" rel="alternate" @href="/static/plaster/codemirror/" />
+```
+
+We can then change that part of our JavaScript to:
+
+```javascript
+self.staticUrl = document.getElementById("static-codemirror-root").href;
+```
+
+Now it'll use a properly translated URL that should withstand any server setup.
 
 ## Missing API Endpoints
 We've created API endpoints to handle the necessary data manipulation, but we don't have API equivalents of our view, list, and user pages yet. The logic won't be much to look at, but thinking about sending back paste data does raise one issue that I've forgotten about.
@@ -289,10 +306,49 @@ This looks a bit daunting at first, indeed. It starts with your standard argumen
 
 Naturally you could add a bunch more endpoints and arguments to allow more flexible querying of which exact results you would like to see. For now, I will consider this sufficient and leave the extension of this aspect of the application up to you.
 
-## User Settings
-
-
 ## Configuration
+I've briefly touched on Radiance's concept of an environment before. It is what decides the mapping between an interface and a particular implementation and is thus a vital part of any Radiance setup. However, it is more general than that particular mapping. The environment is a configuration storage system that can be used by any module. It is automatically backed to human-readable configuration files and requires no setup whatsoever.
+
+We've already defined a couple of variables in our application that smell very much like "configuration". Namely the `*pastes-per-page*`, `*default-api-amount*`, `*maximum-api-amount*`, and `*password-salt*` variables. Replacing them with an access to the configuration system is simple enough.
+
+Before we do that however, we should configure some sane defaults, just like we did with the variables. We can stuff these into the same trigger we've used to set the default permissions. While we're here, we should actually also outsource our default permission entries to the environment system. Why? Because if we don't, it becomes rather difficult for an administrator to enforce other default permissions than the one we think are sensible. By routing that through the environment, we can set sensible "first-time" defaults and still let the sysadmin do his work.
+
+All things considered, our trigger should now look like this:
+
+```common-lisp
+(define-trigger user:ready ()
+  (defaulted-config 25 :pastes-per-page)
+  (defaulted-config 50 :api :default-amount)
+  (defaulted-config 100 :api :maximum-amount)
+  (defaulted-config (make-random-string) :password-salt)
+
+  (defaulted-config (list
+                     (perm plaster paste new)
+                     (perm plaster paste view)
+                     (perm plaster paste list)
+                     (perm plaster paste user)
+                     (perm plaster paste edit own)
+                     (perm plaster paste delete own))
+                    :permissions :default)
+
+  (defaulted-config (list
+                     (perm plaster paste new)
+                     (perm plaster paste view)
+                     (perm plaster paste list)
+                     (perm plaster paste user))
+                    :permissions :anonymous)
+
+  (apply #'user:add-default-permissions (config :permissions :default))
+  (apply #'user:grant "anonymous" (config :permissions :anonymous)))
+```
+
+The `defaulted-config` function sets the configuration value at the path to the first argument if it has not yet been set before, which is exactly what we need. We can then access the value with `config`. Both of these functions are thing wrappers around [Ubiquitous](https://shinmera.github.io/ubiquitous)' `defaulted-value` and `value` that take care of persisting the proper storage for our module. What's also nice about this is that we get a persistent, but random for each setup password salt automatically.
+
+With the configuration set, we just have to exchange the references to our special variables with `(config ..)` calls. Your application should work just the same as it did before once you're done.
+
+Finally, using the configuration has another advantage, in that the possible configuration variables show up in the module's description. If you run `(describe (radiance:module :plaster))` now, you should see our configuration paths in the output.
+
+## User Settings
 
 
 [Part 7](Part 7.md)
