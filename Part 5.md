@@ -82,7 +82,7 @@ With all set on the storage side already, all we need to do to close the deal on
 
 And we're done.
 
-## Rudimentary Protection
+## Protection with Permissions
 Now that we have users and tracking thereof, we should revise our protections. For example, we probably want a permission to control whether someone can paste at all. We should also restrict editing and deleting of a paste to the author himself and perhaps administrators.
 
 First I should explain how permissions work in Radiance. Each user has a list of granted permissions, each of which is in itself a list of at least one element. Permissions can also be represented as a string with dots separating each element. Let's look at some examples.
@@ -213,12 +213,29 @@ Being able to call arbitrary functions from the templates makes things very hand
 Don't forget to adjust the nav in the head on the edit and list templates, too!
 
 ## Rate Limiting
-We should probably also take care not to allow a spammer to hammer out as many pastes as they want within no time.
+We should probably also take care not to allow a spammer to hammer out as many pastes as they want within no time. We could trivially implement rate limiting ourselves by just capturing the IP and an access timestamp, but fortunately enough this is also a common enough problem that Radiance provides an interface for it that we can just use directly. The interface is called [rate](https://github.com/Shirakumo/radiance/blob/master/standard-interfaces.lisp#L17).
 
-FIXME: WHERE THE FUCK DOES THIS GO???
+Given that it is a very simple task, it is only justified that using the rate interface is very simple too. All we need to do is wrap the `plaster/new` API endpoint in `rate:with-limitation` and define a rate limitation behaviour using `rate:define-limit`.
+
+```common-lisp
+(rate:define-limit create (time-left :limit 2)
+  (error 'api-error :message (format NIL "Please wait ~a second~:p before pasting again." time-left)))
+```
+
+The body of the definition sets the code that is executed instead of the 'real body' in the case of excessive access. You can also define the timeout and the number of calls that can be made before the timeout goes into effect. The API endpoint definition should look something like this, now:
+
+```common-lisp
+(define-api plaster/new (text &optional title type parent visibility password current-password) ()
+  (rate:with-limitation (create)
+    ...))
+```
+
+You could also rate limit the other endpoints and pages, but for the most part, spamming will happen on the creation endpoint, which is what we want to protect most of all.
+
+Don't forget to add the interface to your system dependencies!
 
 ## A User Profile
-Radiance offers yet another interface that is of relevance here, namely [`profile`](https://github.com/Shirakumo/radiance/blob/master/standard-interfaces.lisp#L92). This interface is responsible for expanding the users a bit for usage in any kind of software that actually wants to present user profiles. As such it gives you access to arbitrary user fields, an avatar, and panels. The panels are arbitrary templates that you can render onto the profile page of a user.
+Providing user profiles is yet another common problem, for which Radiance offers yet another interface, namely [`profile`](https://github.com/Shirakumo/radiance/blob/master/standard-interfaces.lisp#L92). This interface is responsible for expanding the users a bit for usage in any kind of software that wants to allow users that aren't merely internal or privately associated. As such it gives you access to arbitrary user fields, an avatar, and panels. The panels are arbitrary templates that you can render onto the profile page of a user.
 
 Given this, there are two ways for us to offer a profile page for users on our service. We can either define a profile panel that lists all the pastes, or define our own page entirely. Panels lend themselves well for information that is directly tied to the user like posting stats and other information. Actual post objects like our pastes here should probably be on a separate page however.
 
