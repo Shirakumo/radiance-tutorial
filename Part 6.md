@@ -350,6 +350,8 @@ Finally, using the configuration has another advantage, in that the possible con
 
 ## User Settings
 
+
 ## Conclusion
+Well then, this is it. We're done with our application. A paste service with most, if not all of the features one might need for one. In the final part after this we're going to talk about some of the considerations that drove what makes Radiance different and how Plaster might be deployed in a real-world setting.
 
 [Part 7](Part 7.md)

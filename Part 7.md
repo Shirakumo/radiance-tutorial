@@ -14,15 +14,17 @@ Here are links to relevant documentation and resource pages that will be useful 
 * [Ubiquitous](https://shinmera.github.io/ubiquitous)
 
 ## A Short Roadmap
-This is the last entry in this tutorial. We'll just round everything off and then try to deploy our new application.
+This is the last entry in this tutorial. Congratulations for making it this far!
 
-* Readying everything up for Release
 * Being a Sysop
+* Why we do the things we do the way we do them
 
 Time to wrap it all up!
 
-## Readying for Release
-
 ## Deployment
+
+
+## Why?
+
 
 ## Final Thoughts
