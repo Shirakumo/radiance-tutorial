@@ -93,7 +93,7 @@ The actual page to present this isn't too complicated either:
 ```common-lisp
 (defparameter *pastes-per-page* 25)
 
-(define-page list "plaster/list(?:/(.*))?" (:uri-groups (page) :lquery "list.ctml")
+(define-page list "plaster/list(?:/(.*))?" (:uri-groups (page) :clip "list.ctml")
   (let* ((page (or (when page (parse-integer page :junk-allowed T)) 0))
          (pastes (dm:get 'plaster-pastes (db:query :all)
                          :sort '((time :DESC))
@@ -337,7 +337,7 @@ We've kind of already got the redirect logic properly encapsulated in another fu
 I've made a very minor optimisation here where I allow the passing of the parent as an argument. In order to check whether the paste is an annotation we immediately retrieve the parent object on the view page already, so fetching it twice would be kind of stupid. Mind you, we've already got plenty of unnecessary database accesses and slight inefficiencies in the code, but I will gladly give those for the sake of clarity and brevity. In this case however, we don't lose much.
 
 ```common-lisp
-(define-page view "plaster/view/(.*)" (:uri-groups (id) :lquery "view.ctml")
+(define-page view "plaster/view/(.*)" (:uri-groups (id) :clip "view.ctml")
   (let* ((paste (ensure-paste id))
          (parent (paste-parent paste)))
     (if parent
@@ -352,7 +352,7 @@ With that all set and done, viewing an annotation directly should now properly r
 A sensible way to go about all of this would be to show a password prompt page if no password was given, the usual paste page on a correct password, and a permission denied error page on an incorrect one. Shouldn't be too hard, we just need to add some more clauses to that `if` of ours.
 
 ```common-lisp
-(define-page view "plaster/view/(.*)" (:uri-groups (id) :lquery "view.ctml")
+(define-page view "plaster/view/(.*)" (:uri-groups (id) :clip "view.ctml")
   (let* ((paste (ensure-paste id))
          (parent (paste-parent paste))
          (password (post/get "password")))
@@ -432,7 +432,7 @@ First, in order to protect the edit page in the same way as the view page, let's
 Attentive readers may notice that I've changed the `/=` to a `not eql` here. This is in preparation for the use in the edit page, where the paste can be a hull, in which case the visibility field is `NIL` and thus not a number. With that out of the way, here are the modified view and edit pages:
 
 ```common-lisp
-(define-page view "plaster/view/(.*)" (:uri-groups (id) :lquery "view.ctml")
+(define-page view "plaster/view/(.*)" (:uri-groups (id) :clip "view.ctml")
   (let* ((paste (ensure-paste id))
          (parent (paste-parent paste)))
     (if parent
@@ -442,7 +442,7 @@ Attentive readers may notice that I've changed the `/=` to a `not eql` here. Thi
                             :annotations (sort (paste-annotations paste)
                                                #'< :key (lambda (a) (dm:field a "time"))))))))
 
-(define-page edit "plaster/edit(?:/(.*))?" (:uri-groups (id) :lquery "edit.ctml")
+(define-page edit "plaster/edit(?:/(.*))?" (:uri-groups (id) :clip "edit.ctml")
   (let* ((paste (if id
                     (ensure-paste id)
                     (dm:hull 'plaster-pastes)))

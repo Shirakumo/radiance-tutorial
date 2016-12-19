@@ -271,10 +271,10 @@ You may be wondering why we're using a subdomain for both of our URIs. Radiance'
 Now we'll want to actually process the templates in the pages. This does not require much, for now. Simply change the definitions to look like this: 
 
 ```common-lisp
-(define-page edit "plaster/edit" (:lquery "edit.ctml")
+(define-page edit "plaster/edit" (:clip "edit.ctml")
   (r-clip:process T))
 
-(define-page view "plaster/view/(.*)" (:uri-groups (id) :lquery "view.ctml")
+(define-page view "plaster/view/(.*)" (:uri-groups (id) :clip "view.ctml")
   (r-clip:process T))
 ```
 
@@ -335,7 +335,7 @@ So, what's going on here? We're inserting a new record into our collection, with
 So far so good. Now we need to update the view page to actually retrieve the requested paste and put the data from that into the template. Let's start with the page.
 
 ```common-lisp
-(define-page view "plaster/view/(.*)" (:uri-groups (id) :lquery "view.ctml")
+(define-page view "plaster/view/(.*)" (:uri-groups (id) :clip "view.ctml")
   (let* ((id (parse-integer id))
          (paste (first (db:select 'plaster-pastes (db:query (:= '_id id)) :amount 1))))
     (unless paste

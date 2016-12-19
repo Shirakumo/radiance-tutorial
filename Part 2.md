@@ -25,7 +25,7 @@ Ok, let's go.
 First, let's change up the `edit` page to accept an ID in its url and potentially use the loaded paste to fill in the template, similar to the `view` page.
 
 ```common-lisp
-(define-page edit "plaster/edit(/(.*))?" (:uri-groups (NIL id) :lquery "edit.ctml")
+(define-page edit "plaster/edit(/(.*))?" (:uri-groups (NIL id) :clip "edit.ctml")
   (if id
       (let ((id (parse-integer id))
             (paste (first (db:select 'plaster-pastes (db:query (:= '_id id)) :amount 1))))
@@ -86,7 +86,7 @@ Now that we have these convenience functions we should update our API endpoint a
 Not much has changed here aside from the access to the ID. For the view, we'll also update the template a bit, both to make things look a bit simpler in our page, and in order to display the time that we haven't done anything with before now. Here's the new page definition:
 
 ```common-lisp
-(define-page view "plaster/view/(.*)" (:uri-groups (id) :lquery "view.ctml")
+(define-page view "plaster/view/(.*)" (:uri-groups (id) :clip "view.ctml")
   (r-clip:process T :paste (ensure-paste id)))
 ```
 
@@ -139,7 +139,7 @@ With that said, let's return to our initial objective.
 With a proper edit button in place, and data handling cleaned up, let's give the edit page another try.
 
 ```common-lisp
-(define-page edit "plaster/edit(?:/(.*))?" (:uri-groups (id) :lquery "edit.ctml")
+(define-page edit "plaster/edit(?:/(.*))?" (:uri-groups (id) :clip "edit.ctml")
   (let ((paste (if id
                    (ensure-paste id)
                    (dm:hull 'plaster-pastes))))
@@ -196,7 +196,7 @@ Here things become a bit more special. Aside from the added `lquery` tags to fil
 Assuming that you've already tried the pasting out before, if you visit [the paste view page](https://localhost:8080/!/plaster/view/0) now, you'll be able to successfully click on the Edit button and be lead to the editing page. Actually editing the paste won't work quite yet, but it will fail somewhat gracefully. Hitting the "Edit" button will redirect you back to the same page. You might then realise that we've been redirected back with an `error` GET parameter added, though. Let's incorporate that into the page so that the user can actually see it in a useful way.
 
 ```common-lisp
-(define-page edit "plaster/edit(?:/(.*))?" (:uri-groups (id) :lquery "edit.ctml")
+(define-page edit "plaster/edit(?:/(.*))?" (:uri-groups (id) :clip "edit.ctml")
   (let ((paste (if id
                    (ensure-paste id)
                    (dm:hull 'plaster-pastes))))
@@ -269,7 +269,7 @@ For the message we need to do basically the same thing as for the error response
 And now to add the argument to the Clip processing call.
 
 ```common-lisp
-(define-page edit "plaster/edit(?:/(.*))?" (:uri-groups (id) :lquery "edit.ctml")
+(define-page edit "plaster/edit(?:/(.*))?" (:uri-groups (id) :clip "edit.ctml")
   (let ((paste (if id
                    (ensure-paste id)
                    (dm:hull 'plaster-pastes))))
