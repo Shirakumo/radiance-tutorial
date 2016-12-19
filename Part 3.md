@@ -61,7 +61,7 @@ Thinking about it, all the repasting needs to do is pre-fill the fields of the e
                       :message (get-var "message"))))
 ```
 
-The new `test` attribute could look like this:
+The new `test` attribute for our `<c:if>` tag could look like this:
 
 ```common-lisp
 (or repaste (dm:hull-p *))
@@ -96,8 +96,7 @@ Let's also make some convenience functions to query that part of our data.
 ```common-lisp
 (defun paste-annotations (paste)
   (let* ((paste (ensure-paste paste))
-         (rels (dm:get 'plaster-annotations (db:query (:= 'paste (dm:id paste)))
-                       :sort '((time :ASC)))))
+         (rels (dm:get 'plaster-annotations (db:query (:= 'paste (dm:id paste))))))
     (loop for rel in rels
           collect (ensure-paste (dm:field rel "annotation")))))
 
