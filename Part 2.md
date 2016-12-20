@@ -27,7 +27,7 @@ First, let's change up the `edit` page to accept an ID in its url and potentiall
 ```common-lisp
 (define-page edit "plaster/edit(/(.*))?" (:uri-groups (NIL id) :clip "edit.ctml")
   (if id
-      (let ((id (parse-integer id))
+      (let ((id (db:ensure-id id))
             (paste (first (db:select 'plaster-pastes (db:query (:= '_id id)) :amount 1))))
         (unless paste
           (error 'request-not-found :message (format NIL "No paste with ID ~a was found." id)))
@@ -56,11 +56,11 @@ Now, let's write some convenience functions.
 
 ```common-lisp
 (defun ensure-paste (paste-ish)
-  (etypecase paste-ish
+  (typecase paste-ish
     (dm:data-model paste-ish)
-    (string (ensure-paste (parse-integer paste-ish)))
-    (integer (or (dm:get-one 'plaster-pastes (db:query (:= '_id paste-ish)))
-                 (error 'request-not-found :message (format NIL "No paste with ID ~a was found." paste-ish))))))
+    (db:id (or (dm:get-one 'plaster-pastes (db:query (:= '_id paste-ish)))
+               (error 'request-not-found :message (format NIL "No paste with ID ~a was found." paste-ish))))
+    (T (ensure-paste (db:ensure-id paste-ish))))
 
 (defun create-paste (text &key title)
   (let ((paste (dm:hull 'plaster-pastes)))
