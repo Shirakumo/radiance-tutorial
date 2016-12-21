@@ -42,13 +42,13 @@ First, let's change up the `edit` page to accept an ID in its url and potentiall
 At this point you might realise that we're duplicating quite a bit of functionality. Not to mention that the code looks a bit too elaborate for what we're doing. Let's try something else instead. 
 
 ## Cleaning up Data Access
-We'll create some functions for the programmatical handling of our pastes. As part of that, we'll make use of another of Radiance's interface, namely the `data-model`. This provides a very thin but convenient wrapper around database records. Time to change and reload our system.
+We'll create some functions for the programmatical handling of our pastes. As part of that, we'll make use of another of Radiance's contribs, namely the `data-model`. This provides a very thin but convenient wrapper around database records. Time to change and reload our system.
 
 ```common-lisp
 (asdf:defsystem #:plaster
   ...
   :depends-on ((:interface :database)
-               (:interface :data-model)
+               :r-data-model
                :r-clip))
 ```
 
@@ -70,7 +70,7 @@ Now, let's write some convenience functions.
     (dm:insert paste)))
 ```
 
-The data-model interface gives us a convenient function to fetch a single record and something a bit less ad-hoc to insert a new record too. An actual data-model instance is nothing more than a map of fields to values and the name of the collection that it belongs to. It then supports the operations `dm:insert`, `dm:delete`, and `dm:save` to manage the persistence of the model in the database.
+The data-model system gives us a convenient function to fetch a single record and something a bit less ad-hoc to insert a new record too. An actual data-model instance is nothing more than a map of fields to values and the name of the collection that it belongs to. It then supports the operations `dm:insert`, `dm:delete`, and `dm:save` to manage the persistence of the model in the database.
 
 Now that we have these convenience functions we should update our API endpoint and our `view` page to use it.
 
