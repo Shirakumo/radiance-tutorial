@@ -155,23 +155,23 @@ We can just add this as a toplevel form. Any new user that is created from here 
 Now we need to actually add checks into the pages and API endpoints. Once again, we'll make a short helper function to shorten things.
 
 ```common-lisp
-(defun permitted (action &optional paste (user (or (auth:current) (user:get "anonymous"))))
+(defun permitted-p (action &optional paste (user (or (auth:current) (user:get "anonymous"))))
   (if (listp action)
-      (loop for a in action thereis (permitted a paste user))
+      (loop for a in action thereis (permitted-p a paste user))
       (or (and paste
                (equal (dm:field paste "author") (user:username user))
                (user:check user `(plaster paste ,action own)))
           (user:check user `(plaster paste ,action)))))
 
 (defun check-permission (action &optional paste (user (or (auth:current) (user:get "anonymous"))))
-  (unless (permitted action paste user)
+  (unless (permitted-p action paste user)
     (error 'request-denied :message (format NIL "You do not have the permission to ~a pastes."
                                             action))))
 ```
 
 We use the regular structure of our permissions to do most of the work. If a paste is given, we pass the check if the author is the same and we are allowed to edit our own pastes. Otherwise we have to check the general permission. I've also split it into a predicate and an erroring check. The former will become useful shortly.
 
-Now all we need to do is sprinkle calls to the function all over. Most of the places should be straightforward, with the exception of the edit page, which needs a bit more special treatment. It is also the reason why I've allowed lists of action tests in `permitted`.
+Now all we need to do is sprinkle calls to the function all over. Most of the places should be straightforward, with the exception of the edit page, which needs a bit more special treatment. It is also the reason why I've allowed lists of action tests in `permitted-p`.
 
 ```common-lisp
 (if id
@@ -187,14 +187,14 @@ This is necessary because it might be plausible to have a setup where one can de
 
 I will let you figure out what to do with the other API endpoints and pages yourself. To close the deal on the permissions, we need one final tweak, which is to adapt the buttons on the templates to only show up if the user can even perform the related action.
 
-First up, `view.ctml`. All we need to do is wrap the action buttons and the header nav buttons in a `<c:when>` with a test that checks if it's permitted. Since we created a predicate function exactly for this above, we can use it. Thus, the new actions of the main paste should look like this:
+First up, `view.ctml`. All we need to do is wrap the action buttons and the header nav buttons in a `<c:when>` with a test that checks if it's permitted-p. Since we created a predicate function exactly for this above, we can use it. Thus, the new actions of the main paste should look like this:
 
 ```HTML
-<c:when test="(plaster::permitted :new)">
+<c:when test="(plaster::permitted-p :new)">
   <a href="#" @href="plaster/edit?annotate={0}&password={1} _id (** :password)">Annotate</a>
   <a href="#" @href="plaster/edit/{0}?repaste&password={1} _id (** :password)">Repaste</a>
 </c:when>
-<c:when test="(plaster::permitted :edit *)">
+<c:when test="(plaster::permitted-p :edit *)">
   <a href="#" @href="plaster/edit/{0}?password={1} _id (** :password)">Edit</a>
 </c:when>
 ```
@@ -202,10 +202,10 @@ First up, `view.ctml`. All we need to do is wrap the action buttons and the head
 Being able to call arbitrary functions from the templates makes things very handy, if perhaps a bit verbose at times. All that's left is to add a similar test to `edit.ctml`'s submission buttons. We only need to change the `Delete` and `Save` ones too, since the `Post` case is already blocked by a huge error page.
 
 ```HTML
-<c:when test="(plaster::permitted :delete *)">
+<c:when test="(plaster::permitted-p :delete *)">
   <input type="submit" @formaction="/api/plaster/delete" value="Delete" />
 </c:when>
-<c:when test="(plaster::permitted :edit *)">
+<c:when test="(plaster::permitted-p :edit *)">
   <input type="submit" @formaction="/api/plaster/edit" value="Save" />
 </c:when>
 ```
@@ -253,10 +253,10 @@ We'll be doing both-- namely, we'll create a new page that lists a user's pastes
     <header>
       <h1>Plaster</h1>
       <nav>
-        <c:when test="(plaster::permitted :new)">
+        <c:when test="(plaster::permitted-p :new)">
           <a href="#" @href="plaster/edit">New</a>
         </c:when>
-        <c:when test="(plaster::permitted :list)">
+        <c:when test="(plaster::permitted-p :list)">
           <a href="#" @href="plaster/list">List</a>
         </c:when>
       </nav>
@@ -329,7 +329,7 @@ Finally we should have a button that lets you visit your own profile, or redirec
 
 ```HTML
 <c:if test="(auth:current)">
-  <c:then><c:when test="(plaster::permitted :user)">
+  <c:then><c:when test="(plaster::permitted-p :user)">
     <a href="#" @href="plaster/user/{0} (user:username (auth:current))">My Pastes</a>
   </c:when></c:then>
   <c:else>

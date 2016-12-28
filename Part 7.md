@@ -40,7 +40,7 @@ We're going to take off our developer boots now and instead put on the sysop sho
 
 Now, we're already running a webserver on our machine to provide some static HTML files. Naturally we still want to do so, and we don't really want to switch servers around. Instead, the paste service should just be provided on a subfolder. More specifically, while our website is provided at `guybrush.freedns.example/`, the paste service should be at `guybrush.freedns.example/paste/`.
 
-First we need an installation of Radiance itself. Fortunately enough, getting one is rather simple and merely requires a running Lips implementation and an active internet connection. Lets get that set up.
+First we need an installation of Radiance itself. Fortunately enough, getting one is rather simple and merely requires a running Lisp implementation and an active internet connection. Lets get that set up.
 
 ```shell
 curl -O https://raw.githubusercontent.com/Shirakumo/radiance-bootstrap/master/bin/radiance-bootstrap.lisp

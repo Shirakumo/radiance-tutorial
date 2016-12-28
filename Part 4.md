@@ -203,7 +203,7 @@ Next is the actual create function itself. While I was at it I've also factored 
       paste)))
 ```
 
-We first coerce the visibility to get a proper numerical value for it and hash the password if it is supplied. We then check if a password was supplied at all for the private visibility to ensure that you can't set it to private with no password at all. You could enforce even stricter password rules here if you so choose, but I have little interest for that. Then we just add the fields to the paste object like usual.
+We first coerce the visibility to get a proper numerical value for it and make sure we get a valid password hash. Then we just add the fields to the paste object like usual.
 
 The editing process also needs some changes in case the visibility or password is changed. We also don't have a separated out editing function yet. Let's fix that while we're at it.
 
@@ -479,7 +479,7 @@ We're not quite done with that, though. We also need to supply the old password 
 <input type="hidden" name="current-password" lquery="(val (** :password))" />
 ```
 
-That should finally be enough to satisfy all the frontend demands. Moving on to the API endpoints, then. We don't want the password checking to happen in the `edit/delete-paste` functions, since those should be more invasive and just perform consistency checks and database operations. Instead, we'll do the password check in the actual API endpoint definitions.
+That should finally be enough to satisfy all the frontend demands. Moving on to the API endpoints, then. We don't want the password checking to happen in the `edit/delete-paste` functions, since those should grip deeper into the system and just perform consistency checks and database operations. Instead, we'll do the password check in the actual API endpoint definitions.
 
 ```common-lisp
 (defun check-password (paste password)

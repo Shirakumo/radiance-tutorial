@@ -274,7 +274,7 @@ I've also included the ability to add the list of annotations into the output, w
       (api-output (reformat-paste paste :include-annotations (or* include-annotations))))))
 ```
 
-Viewing a single paste is easy enough. Listing a bunch of paste is a bit more difficult, since we need to account for multiple clauses like filtering by author and handling pagination. We should probably also limit the number of pastes that can be returned at max, just to rate limit things a bit.
+Viewing a single paste is easy enough. Listing a bunch of pastes is a bit more difficult, since we need to account for multiple clauses like filtering by author and handling pagination. We should probably also limit the number of pastes that can be returned at max, just to rate limit things a bit.
 
 ```common-lisp
 (defparameter *default-api-amount* 50)
