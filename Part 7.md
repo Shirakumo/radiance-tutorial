@@ -28,7 +28,6 @@ The application is mostly done, but there are some things that could be added st
 
 * Spammer protection and/or Captchas
 * Customisation of the title
-* Theme switching
 * Paste access sharing
 * Automatic refreshing of lists and pastes
 * Adjusting timestamps for local browser time
