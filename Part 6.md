@@ -125,19 +125,34 @@ var Plaster = function(){
     self.createEditor = function(element, config, callback){
         var textarea = element.getElementsByTagName("textarea")[0];
         var type = element.getElementsByClassName("type")[0];
+        var theme = element.getElementsByClassName("theme")[0];
 
         self.editors.push(element);
         if(!config) config = {};
-        if(!config.theme) config.theme = "default";
         if(!config.readOnly) config.readOnly = textarea.hasAttribute("readonly");
-        
-        if(type.tagName === "select"){
+
+        if(config.theme){
+        }else if(!theme){
+            config.theme = "default";
+        }else if(theme.tagName === "select"){
+            config.theme = theme.options[theme.selectedIndex].value;
+            theme.addEventListener("change", function(){
+                self.changeTheme(element, theme.options[theme.selectedIndex].value);
+            }, false);
+        }else{
+            config.theme = theme.textContent;
+        }
+
+        if(config.mode){
+        }else if(!type){
+            config.mode = "text";
+        }else if(type.tagName === "select"){
             config.mode = type.options[type.selectedIndex].value;
             type.addEventListener("change", function(){
                 self.changeMode(element, type.options[type.selectedIndex].value);
             }, false);
         }else{
-            if(!config.mode) config.mode = type.textContent;
+            config.mode = type.textContent;
         }
 
         element.mirror = null;
@@ -349,7 +364,89 @@ With the configuration set, we just have to exchange the references to our speci
 Finally, using the configuration has another advantage, in that the possible configuration variables show up in the module's description. If you run `(describe (radiance:module :plaster))` now, you should see our configuration paths in the output.
 
 ## User Settings
+Finally, I think it would be a good addition to talk about user settings. A lot of applications will want to provide users with some kind of way to configure their profiles and preferences, or want to provide administrators with control panels to manage resources. Radiance supports this as well, through the `admin` interface.
 
+The administration interface is similar to the profile interface, in that it is mandated to provide a page on which everything happens, and that there's a macro to define panels that should be displayed on the page. Now, usually though the administration panel is not a thing that is specifically necessary. At least, our application does not depend on it, which is why you shouldn't put it into the ASDF system dependency either. However, we can still make use of it and provide our administration panel as an optional feature. We can do this thanks to the way interfaces are set up.
+
+Specifically, each interface has a hook called `implemented` that is triggered whenever the interface is fully implemented by a module and thus ready to be used. By defining a trigger on that and making sure only to compile our forms once it is called, we can defer features and thus make them optional. Before we get into that though, it's once again time to write a small template. On it, we'll want to let the user configure the default editor theme and content type. Not very much, but there isn't much to configure for our case anyway.
+
+```HTML
+<link rel="stylesheet" type="text/css" @href="/static/plaster/codemirror/codemirror.css" />
+<link id="static-codemirror-root" rel="alternate" @href="/static/plaster/codemirror/" />
+<div>
+  <h2>Editor Settings</h2>
+  <c:when test="error"><div class="notice error" lquery="(text error)"></div></c:when>
+  <c:when test="info"><div class="notice info" lquery="(text info)"></div></c:when>
+  <noscript style="display:block" class="notice error">You need to enable JavaScript for these options to take effect.</noscript>
+  <form class="box edit" method="post">
+    <label>Theme:</label><select name="theme" class="theme" iterate="themes">
+      <option lquery="(text *) (attr :value * :selected (equal * (** :theme)))">THEME</option>
+    </select><br />
+    <label>Default Type:</label><select name="type" class="type" iterate="types">
+      <option lquery="(text *) (attr :value * :selected (equal * (** :type)))">TYPE</option>
+    </select><br />
+    Preview:
+    <textarea id="preview"></textarea>
+    <div class="actionbar"><input type="submit" name="action" value="Save" /></div>
+  </form>
+</div>
+<script type="text/javascript" @src="/static/plaster/codemirror/codemirror.js" />
+<script type="text/javascript" @src="/static/plaster/plaster.js" />
+```
+
+Similar to the users panel, we need to merely define the content we want on the panel, rather than a full HTML document. I've copied over the stylesheet and script inclusions from the `edit.ctml` file, and set up a rather minimal form to configure the settings. I've also included a note for JavaScript blockers, and some divs to respond with info and error messages. The textarea will automatically be turned into a CodeMirror instance thanks to the `edit` class on the `<form>`. Now we'll also need to actually add our panel and supply the template with the necessary options.
+
+```common-lisp
+(defparameter *paste-themes*
+  (list* "default"
+         (sort (mapcar #'pathname-name
+                       (uiop:directory-files (@static "codemirror/theme/")))
+               #'string<)))
+
+(define-implement-trigger admin
+  (admin:define-panel settings plaster (:clip "admin-panel.ctml")
+    (with-actions (error info)
+        ((:save
+          (setf (user:field "plaster-type" (auth:current)) (post/get "text"))
+          (setf (user:field "plaster-theme" (auth:current)) (post/get "theme"))
+          (setf info "Editor preferences saved.")))
+      (r-clip:process T :types *paste-types*
+                        :themes *paste-themes*
+                        :type (or* (user:field "plaster-type" (auth:current)) "text")
+                        :theme (or* (user:field "plaster-theme" (auth:current)) "default")
+                        :error error :info info))))
+```
+
+First we need a list of available themes, which we collect almost exactly the same way as the modes list. More interestingly, you can see the combination of `define-implement-trigger` that does the aforementioned deferral, and the `admin:define-panel` form that actually registers a new panel. It makes use of the `with-actions` convenience macro that dispatches based on the post/get parameter `"action"`. It automatically captures errors and is quite useful for handling these types of setting forms. The template process call makes use of the user interface's generic fields storage mechanism. This avoids us having to create an extra collection just to store some settings. The interface will take care of properly persisting the data, though it comes at a cost: the keys and values must be strings. If you need to preserve types, or require more complicated structures, you'll have to handle it yourself.
+
+Now that we've defined our panel, we'll probably also want to see it in action. To do so we'll need to load an admin interface implementation. The standard from the contribs will do just fine, so load it on up.
+
+```common-lisp
+(ql:quickload :r-simple-admin)
+```
+
+You should still be logged in, so let's just get onto the admin panel and check it out. You can get to it through this link: [`localhost:8080/!/admin/`](localhost:8080/!/admin/). It should show a link labelled "Plaster" on the sidebar. Once on it, you can configure your preferred theme and content type.
+
+The last thing we need to do now is to actually integrate the information into the edit page. The `edit.ctml` template just needs a single element addition to the edit form's header:
+
+```HTML
+<span style="display:none" class="theme" lquery="(text (** :theme))"/>
+```
+
+The page definition needs some changes too. Namely we'll need to augment the empty data-model for a new paste with the preferred type, and pass the theme to the template process call. For brevity I'll only include the relevant parts-- I'm sure you can figure out how to actually put it together:
+
+```common-lisp
+    ...
+    (when id
+      (setf (dm:field paste "type") (or* (user:field "plaster-type" (auth:current "anonymous"))
+                                         "text")))
+    (with-password-protection ((or parent paste))
+      (r-clip:process T ...
+                        :theme (or* (user:field "plaster-theme" (auth:current "anonymous"))
+                                    "default")))))
+```
+
+Alright. Now, whenever you load the edit page, it should automatically select the preferred type and theme for you. Neat!
 
 ## Conclusion
 Well then, this is it. We're done with our application. A paste service with most, if not all of the features one might need for one. In the final part after this we're going to talk about some of the considerations that drove what makes Radiance different and how Plaster might be deployed in a real-world setting.
