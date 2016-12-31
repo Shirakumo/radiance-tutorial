@@ -48,30 +48,32 @@ sbcl --script radiance-bootstrap.lisp
 
 Substitute for other means of downloading and running the script as desired. It'll ask you some questions first-- most importantly where it is supposed to install to and what domains it will be reachable through. Radiance needs to know this in order to be able to properly distinguish between the part of a domain that it can have control over (subdomains) and the parts it cannot (top-level domain).
 
-For our example here, during the installation we'll tell it that `guybrush.freedns.example` and `localhost` should be the accepted domains. We'll also run our instance on the standard port of `8080`. Now that we have Radiance installed, we'll want to install Plaster. The setup helpfully points out the place where modules should go; all we need to do is download or clone a copy of Plaster, place it in there, and configure it to be loaded.
+For our example here, during the installation we'll tell it that `guybrush.freedns.example` and `localhost` should be the accepted domains. We'll also run our instance on the standard port of `8080`. Now that we have Radiance installed, we'll want to install Plaster. The setup helpfully points out the place where modules should go; all we need to do is download or clone a copy of Plaster, and place it in there.
 
-We can do so in the configuration file that the installation will have created for us. It should be in `config/default/radiance-core/radiance-core.conf.lisp`. There it should have a list called `:startup` that contains the names of the modules that should be loaded. We can simply add `:plaster` to the end of that list.
-
-So far so good. The next step is to configure our existing HTTP server to proxy requests on `/paste/` to `localhost:8080`. That way, the Radiance installation will be reachable without the need for the special port.
+Once that's done, Plaster should load automatically. The next step is to configure our existing HTTP server to proxy requests on `/paste/` to `localhost:8080`. That way, the Radiance installation will be reachable without the need for the special port.
 
 However, there is a slight problem. When Radiance receives requests, it won't be able to dispatch them properly yet. Let's illustrate that with an example. Say there's a request coming in to `guybrush.freedns.example/paste/new`. The primary HTTP server picks it up and proxies it to Radiance. Radiance in turn translates the request URL into the URI `/paste/new` because it knows that `guybrush.freedns.example` is a top-level domain that we cannot change. It then tries to dispatch on it. Unfortunately, no matching dispatcher will be configured, since the only pages we have are listening on `/static/`, `/api/`, `plaster/new`, and `plaster/view`.
 
 Hang on though. So far we've been able to look at our pages just fine despite this weird page mapping. Indeed so, but in order to do so we've been making use of a special mechanism in Radiance that can simulate subdomains. This mechanism, the `/!/` path prefix, is provided through a route. We can solve our current mapping problem using routes as well. More specifically, what we want to do is to map all the requests Radiance receives on the path prefix `/paste/` to a request on the subdomain `plaster` with that prefix stripped from the path.
 
-The configuration file also has a list for routes that we can use to configure our own. Adding the following two entries to the end of that list should already suffice.
+The configuration file that the bootstrapper created has a list for routes that we can use to configure our own. Adding the following two entries to the end of that list should already suffice. The file should be at `config/default/radiance-core/radiance-core.conf.lisp`.
 
 ```commonlisp
 (paste :mapping "/paste/(.*)" "plaster/\\1")
-(paste :reversal "plaster/(.*)" "/paste/(.*)")
+(paste :reversal "plaster/(.*)" "/paste/\\1")
 ```
 
 This will do exactly what we need, in two steps-- a route that performs the translation from the outside world into Radiance's application domain, and a route that does the opposite. It is important that both exist. Without the first one, pages would be unreachable. Without the second one, links within the emitted page content would point to the wrong places.
 
 Essentially Radiance separates concerns into two worlds. One world that a user of the website sees, and another that the application sees. The routing mechanism is responsible for bridging the gap between the two. This is not only a good idea, but also absolutely necessary in order to allow you to write applications that can be used on any setup. Anything else would soon hit limitations that cannot be accounted for anymore, and would thus require modification of the application's source.
 
-The routing system can be used for much more than that, though. The virtual domains route with `/!/` is one example of that. Another example would be to rewrite URIs that point to static files such that they are fetched from a different server altogether. You can also implement strategies that provide different services on different ports, etc.
+The routing system can be used for much more than that, though. The virtual domains route with `/!/` is one example of that. Another example would be to rewrite URIs that point to static files such that they are fetched from a different server altogether. You can also implement strategies that provide different services on different ports, etc. We'll actually probably want one final route that redirects `plaster/` to `plaster/new` so that the index page has a sensible default. This'll do:
 
-Now that all is set up and ready to go, Radiance can be started using the `start.lisp` file that was generated as part of the installation.
+```commonlisp
+(paste-new :mapping "plaster/" "plaster/edit" -1)
+```
+
+The `-1` at the end there is the priority that makes sure the route takes effect after our previous one. The default route priority is `0`. Now that all is set up and ready to go, Radiance can be started using the `start.lisp` file that was generated as part of the installation.
 
 ```shell
 sbcl --script start.lisp
