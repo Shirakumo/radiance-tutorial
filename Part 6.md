@@ -437,7 +437,7 @@ The page definition needs some changes too. Namely we'll need to augment the emp
 
 ```common-lisp
     ...
-    (when id
+    (unless id
       (setf (dm:field paste "type") (or* (user:field "plaster-type" (auth:current "anonymous"))
                                          "text")))
     (with-password-protection ((or parent paste))
