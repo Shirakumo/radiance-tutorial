@@ -385,7 +385,7 @@ Now, if the paste could not be found, an error is signalled that will usually ca
 
 The only things changed are the `input` and `textarea` elements, which now have an `lquery` attribute. This attribute can contain a sequence of [lQuery](https://shinmera.github.io/lquery) instructions to modify the element. In this case, we're just using it to conveniently fill in the value attribute and set the text content.
 
-You should now be able to visit [the /new page](http://localhost:8080/!/plaster/new), create a paste, and view it. And with that we have achieved the goals we've set for the first part of this tutorial.
+You should now be able to visit [the /edit page](http://localhost:8080/!/plaster/edit), create a paste, and view it. And with that we have achieved the goals we've set for the first part of this tutorial.
 
 ## Conclusion
 Despite this seeming like a small goal to reach, we've touched on many different parts already now. We've looked at how to start out with a new module, how to define pages and API endpoints, how to interface and get started with a database, how to integrate Clip templates and how to use them, and finally how to use LASS for CSS compilation. If you're feeling a bit overwhelmed, don't worry. Try going through this part again and look at the documentation of the associated systems. While there are many parts, the ways in which they function are not altogether complicated.
