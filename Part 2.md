@@ -83,7 +83,7 @@ Now that we have these convenience functions we should update our API endpoint a
         (api-output `(("id" . ,(dm:id paste)))))))
 ```
 
-Not much has changed here aside from the access to the ID. For the view, we'll also update the template a bit, both to make things look a bit simpler in our page, and in order to display the time that we haven't done anything with before now. Here's the new page definition:
+Not much has changed here aside from the access to the ID. For the view page, we'll also update the template a bit, both to make things look a bit simpler in our page, and in order to display the time that we haven't done anything with before now. Here's the new page definition:
 
 ```common-lisp
 (define-page view "plaster/view/(.*)" (:uri-groups (id) :clip "view.ctml")
