@@ -1,5 +1,5 @@
 # Part 3
-[Part 0](Part 0.md) [Part 1](Part 1.md) [Part 2](Part 2.md)
+[Part 0](Part%200.md) [Part 1](Part%201.md) [Part 2](Part%202.md)
 
 ## Resources & Documentation
 Here are links to relevant documentation and resource pages that will be useful to refer to for this tutorial.
@@ -269,4 +269,4 @@ And that's all she wrote. You can now try out annotating. If you did it all righ
 ## Conclusion
 Adding more functionality to an application once the basic idea is in place is not that much of a problem. Most of what we're doing now is not especially Radiance specific either and instead delves more into the general web development practises. In the next part we'll look at a public paste list, and some first protection against unauthorised access.
 
-[Part 4](Part 4.md)
+[Part 4](Part%204.md)

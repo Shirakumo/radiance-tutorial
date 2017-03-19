@@ -1,5 +1,5 @@
 # Part 1 
-[Part 0](Part 0.md)
+[Part 0](Part%200.md)
 
 ## Resources & Documentation
 Here are links to relevant documentation and resource pages that will be useful to refer to for this tutorial.
@@ -394,4 +394,4 @@ In case you're encountering error pages and you'd like to get something more use
 
 We've taken our first, hopefully successful, steps building our application now. Hopefully things aren't looking too daunting to you yet. Once you think that you've understood it all well and proper enough, you can move on to the second part, in which we'll flesh things out a bit by adding some more actions. 
 
-[Part 2](Part 2.md)
+[Part 2](Part%202.md)

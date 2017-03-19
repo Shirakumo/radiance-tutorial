@@ -1,5 +1,5 @@
 # Part 7
-[Part 0](Part 0.md) [Part 1](Part 1.md) [Part 2](Part 2.md) [Part 3](Part 3.md) [Part 4](Part 4.md) [Part 5](Part 5.md) [Part 6](Part 6.md)
+[Part 0](Part%200.md) [Part 1](Part%201.md) [Part 2](Part%202.md) [Part 3](Part%203.md) [Part 4](Part%204.md) [Part 5](Part%205.md) [Part 6](Part%206.md)
 
 ## Resources & Documentation
 Here are links to relevant documentation and resource pages that will be useful to refer to for this tutorial.

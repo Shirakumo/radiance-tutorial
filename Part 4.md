@@ -1,5 +1,5 @@
 # Part 4
-[Part 0](Part 0.md) [Part 1](Part 1.md) [Part 2](Part 2.md) [Part 3](Part 3.md)
+[Part 0](Part%200.md) [Part 1](Part%201.md) [Part 2](Part%202.md) [Part 3](Part%203.md)
 
 ## Resources & Documentation
 Here are links to relevant documentation and resource pages that will be useful to refer to for this tutorial.
@@ -508,4 +508,4 @@ And that's finally it. I hope. I might have missed a detail myself that presents
 ## Conclusion
 This was a longer part than usual, which I think nicely illustrates the complexity of safety and protection. Once you're sure that everything is fine and you've mulled things over in your mind some more, you can move on to the next part, in which we'll finally introduce user accounts to the system.
 
-[Part 5](Part 5.md)
+[Part 5](Part%205.md)

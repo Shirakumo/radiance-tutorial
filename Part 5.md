@@ -1,5 +1,5 @@
 # Part 5
-[Part 0](Part 0.md) [Part 1](Part 1.md) [Part 2](Part 2.md) [Part 3](Part 3.md) [Part 4](Part 4.md)
+[Part 0](Part%200.md) [Part 1](Part%201.md) [Part 2](Part%202.md) [Part 3](Part%203.md) [Part 4](Part%204.md)
 
 ## Resources & Documentation
 Here are links to relevant documentation and resource pages that will be useful to refer to for this tutorial.
@@ -424,4 +424,4 @@ Truly stunning.
 ## Conclusion
 Once you've recovered from being awe-struck and have ascertained that you have properly understood everything in this part, you may move on to the next one. There, we'll start to slowly wrap things up by adding all the rest of the missing functionality.
 
-[Part 6](Part 6.md)
+[Part 6](Part%206.md)

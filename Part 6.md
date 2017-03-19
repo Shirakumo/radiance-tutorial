@@ -1,5 +1,5 @@
 # Part 6
-[Part 0](Part 0.md) [Part 1](Part 1.md) [Part 2](Part 2.md) [Part 3](Part 3.md) [Part 4](Part 4.md) [Part 5](Part 5.md)
+[Part 0](Part%200.md) [Part 1](Part%201.md) [Part 2](Part%202.md) [Part 3](Part%203.md) [Part 4](Part%204.md) [Part 5](Part%205.md)
 
 ## Resources & Documentation
 Here are links to relevant documentation and resource pages that will be useful to refer to for this tutorial.
@@ -451,4 +451,4 @@ Alright. Now, whenever you load the edit page, it should automatically select th
 ## Conclusion
 Well then, this is it. We're done with our application. A paste service with most, if not all of the features one might need for one. In the final part after this we're going to talk about some of the considerations that drove what makes Radiance different and how Plaster might be deployed in a real-world setting.
 
-[Part 7](Part 7.md)
+[Part 7](Part%207.md)
