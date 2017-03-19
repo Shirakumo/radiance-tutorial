@@ -27,8 +27,8 @@ First, let's change up the `edit` page to accept an ID in its url and potentiall
 ```common-lisp
 (define-page edit "plaster/edit(/(.*))?" (:uri-groups (NIL id) :clip "edit.ctml")
   (if id
-      (let ((id (db:ensure-id id))
-            (paste (first (db:select 'plaster-pastes (db:query (:= '_id id)) :amount 1))))
+      (let* ((id (db:ensure-id id))
+             (paste (first (db:select 'plaster-pastes (db:query (:= '_id id)) :amount 1))))
         (unless paste
           (error 'request-not-found :message (format NIL "No paste with ID ~a was found." id)))
         (r-clip:process
