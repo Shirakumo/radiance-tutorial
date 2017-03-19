@@ -60,7 +60,7 @@ Now, let's write some convenience functions.
     (dm:data-model paste-ish)
     (db:id (or (dm:get-one 'plaster-pastes (db:query (:= '_id paste-ish)))
                (error 'request-not-found :message (format NIL "No paste with ID ~a was found." paste-ish))))
-    (T (ensure-paste (db:ensure-id paste-ish))))
+    (T (ensure-paste (db:ensure-id paste-ish)))))
 
 (defun create-paste (text &key title)
   (let ((paste (dm:hull 'plaster-pastes)))
