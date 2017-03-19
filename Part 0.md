@@ -26,4 +26,4 @@ The tutorial is divided up into seven parts, each dealing with adding some featu
 
 With all said and done, you may now move on to the first real part of the tutorial.
 
-[Part 1](Part 1.md)
+[Part 1](Part%201.md)
