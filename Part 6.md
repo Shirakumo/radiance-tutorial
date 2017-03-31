@@ -301,7 +301,7 @@ Viewing a single paste is easy enough. Listing a bunch of pastes is a bit more d
         (skip (if skip (parse-integer skip) 0)))
     (unless (<= 0 amount *maximum-api-amount*)
       (error 'api-argument-invalid :argument "amount"
-                                   :message (format NIL "Amount must be within [0,~a]" amount)))
+                                   :message (format NIL "Amount must be within [0,~a]" *maximum-api-amount*)))
     (let ((query (cond ((and (auth:current) (equalp author (user:username (auth:current))))
                         (db:query (:= 'author author)))
                        (author
