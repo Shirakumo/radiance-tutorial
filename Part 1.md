@@ -173,7 +173,6 @@ Back to templates! Since this file is mostly just HTML, you can open it up in yo
  ("#message" :background (rgb 0 200 0))
  (>main
   (.edit
-   :text-align right
    (header
     :text-align left
     :padding 10px
