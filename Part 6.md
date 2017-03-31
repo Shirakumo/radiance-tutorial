@@ -427,13 +427,13 @@ Now that we've defined our panel, we'll probably also want to see it in action. 
 
 You should still be logged in, so let's just get onto the admin panel and check it out. You can get to it through this link: [`localhost:8080/!/admin/`](localhost:8080/!/admin/). It should show a link labelled "Plaster" on the sidebar. Once on it, you can configure your preferred theme and content type.
 
-The last thing we need to do now is to actually integrate the information into the edit page. The `edit.ctml` template just needs a single element addition to the edit form's header:
+The last thing we need to do now is to actually integrate the information into the edit and view pages. The `edit.ctml`/`view.ctml` template just needs a single element addition to the edit form's header:
 
 ```HTML
 <span style="display:none" class="theme" lquery="(text (** :theme))"/>
 ```
 
-The page definition needs some changes too. Namely we'll need to augment the empty data-model for a new paste with the preferred type, and pass the theme to the template process call. For brevity I'll only include the relevant parts-- I'm sure you can figure out how to actually put it together:
+The page definitions need some changes too. Namely, we'll need to pass the theme to the template process call, and in the edit page, we'll need to augment the empty data-model for a new paste with the preferred type as well. For brevity I'll only include the relevant parts from the edit page-- I'm sure you can figure out how to actually put it all together by now.
 
 ```common-lisp
     ...
