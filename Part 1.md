@@ -131,7 +131,7 @@ Create a file `plaster/template/edit.ctml` and edit it to contain something simi
 </html>
 ```
 
-For the most part, this is standard HTML5. The only special things in the template so far are the `@href` and `@action`. These special attributes use `uri`s as their values, which are then translated and used as replacements for the `href` and `action` attribute values respectively once the template is processed. This translation is part of Radiance's routing system and ensures that links within your templates are turned into references that work on any possible server setup.
+For the most part, this is standard HTML5. The only special things in the template so far are the `@href` and `@action`. These special attributes use `uri`s as their values, which are then translated and used as replacements for the `href` and `action` attribute values respectively once the template is processed. This translation is part of Radiance's routing system and ensures that links within your templates are turned into references that work on any possible server setup. All non-standard characters in a template URI are URL-encoded automatically as well, with the exception of `?&=#` as they are necessary to specify the query and fragment parts of a URL. If you want to use them as literals, you'll have to insert them through a variable. We'll get to variables in template URIs at a later point, though.
 
 A URI in Radiance is an object that represents a trimmed down URL. It can contain a list of domains, a port number, and a path string. URIs are a central aspect and used in several places in order to handle references and represent URLs. We'll talk more about them once we get to routing.
 

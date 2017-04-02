@@ -66,7 +66,7 @@ Naturally our creation function needs a new argument to account for this, too.
 
 Naturally we need to pass the author to it from our API endpoint. But hold on, where do we even know which user it is from? The [user interface](https://github.com/Shirakumo/radiance/blob/master/standard-interfaces.lisp#L63) does not give us anything that can do that for us. Indeed, we won't be able to get what we need with that interface alone. We need something else as well, namely authentication. For this, too, we have an interface, conveniently called [`auth`](https://github.com/Shirakumo/radiance/blob/master/standard-interfaces.lisp#L37). I trust you are able to add it to the system dependencies on your own.
 
-Using `auth:current`, we can then set the proper author on our `plaster/new` endpoint.
+In order to retrieve the current user, we'll need to make use of a new interface called `auth`, which handles authentication. So, we'll first need to add that interface to the system's dependencies. Then, using `auth:current`, we can then set the proper author on our `plaster/new` endpoint.
 
 ```common-lisp
 :author (user:username (or (auth:current) (user:get "anonymous")))
@@ -237,9 +237,9 @@ Don't forget to add the interface to your system dependencies!
 ## A User Profile
 Providing user profiles is yet another common problem, for which Radiance offers yet another interface, namely [`profile`](https://github.com/Shirakumo/radiance/blob/master/standard-interfaces.lisp#L92). This interface is responsible for expanding the users a bit for usage in any kind of software that wants to allow users that aren't merely internal or privately associated. As such it gives you access to arbitrary user fields, an avatar, and panels. The panels are arbitrary templates that you can render onto the profile page of a user.
 
-Given this, there are two ways for us to offer a profile page for users on our service. We can either define a profile panel that lists all the pastes, or define our own page entirely. Panels lend themselves well for information that is directly tied to the user like posting stats and other information. Actual post objects like our pastes here should probably be on a separate page however.
+Given this, there are two ways for us to offer a profile page for users on our service. We can either define a profile panel that lists all the pastes, or define our own page entirely. Panels lend themselves well for information that is directly tied to the user like posting statistics and other information. Actual post objects like our pastes here should probably be on a separate page however.
 
-We'll be doing both-- namely, we'll create a new page that lists a user's pastes, and we'll add a small panel to the user profile that shows some paste stats. The actual user paste page will be very similar to the list page we've made before. So, let's create a `user.ctml`.
+We'll be doing both-- namely, we'll create a new page that lists a user's pastes, and we'll add a small panel to the user profile that shows some paste statistics. The actual user paste page will be very similar to the list page we've made before. So, let's create a `user.ctml`.
 
 ```HTML
 <!DOCTYPE html>
@@ -288,7 +288,7 @@ We'll be doing both-- namely, we'll create a new page that lists a user's pastes
 </html>
 ```
 
-There are some interesting points to mention here. First, we employ the `profile:avatar` function and change the `src` attribute to that using the lQuery `attr` function. The avatar function requires you to pass a "suitable size" for the avatar and will try (but not guarantee!) to return something close to that size. While you can always resize the image with CSS, you shouldn't set it unreasonably large as that might significantly slow down page speed.
+There are some interesting points to mention here. First, we employ the `profile:avatar` function and change the `src` attribute to that using the lQuery `attr` function. We don't want to use `@src` here, because the `profile:avatar` function is specified to return an external URL already and we don't want to externalise it again. The avatar function requires you to pass a "suitable size" for the avatar and will try (but not guarantee!) to return something close to that size. While you can always resize the image with CSS, you shouldn't set it unreasonably large as that might significantly slow down page speed.
 
 Second, in order to link to the user's profile we're using a different kind of pattern: `<profile page {0}>`. A pattern like that is called a resource and is resolved through Radiance's resource system. The resource system allows you to access certain relevant information of a module or interface through a standardised mechanism. Resources are dispatched by the module you're requesting information from, and the type of resource you need. The page resource type we're employing here is specified to always return a URI to the requested page. For the profile interface, this means a URI to the page that displays the given user's profile. You can try it out at the REPL too, using the `resource` function.
 

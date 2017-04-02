@@ -429,7 +429,7 @@ First, in order to protect the edit page in the same way as the view page, let's
     (lambda () ,@body) ,paste ,password))
 ```
 
-Attentive readers may notice that I've changed the `/=` to a `not eql` here. This is in preparation for the use in the edit page, where the paste can be a hull, in which case the visibility field is `NIL` and thus not a number. With that out of the way, here are the modified view and edit pages:
+Attentive readers may notice that I've changed the `/=` to a `not eql` here. This is in preparation for the use in the edit page, where the paste can be a hull, in which case the visibility field is `NIL` and thus not a number. With that out of the way, here are the modified view, edit, and raw pages:
 
 ```common-lisp
 (define-page view "plaster/view/(.*)" (:uri-groups (id) :clip "view.ctml")
@@ -455,6 +455,12 @@ Attentive readers may notice that I've changed the `/=` to a `not eql` here. Thi
                         :repaste (get-var "repaste")
                         :error (get-var "error")
                         :message (get-var "message")))))
+
+(define-page raw "plaster/view/(.*)/raw" (:uri-groups (id))
+  (let ((paste (ensure-paste id)))
+    (with-password-protection (paste)
+      (setf (content-type *response*) "text/plain")
+      (dm:field paste "text"))))
 ```
 
 Note the careful change in the edit page. We have to password protect against the parent or requested annotation target if one exists, since we should inherit the password in the case of an annotation. Without this, one could edit or create annotations of a password protected paste without needing to supply the password. Nasty!
