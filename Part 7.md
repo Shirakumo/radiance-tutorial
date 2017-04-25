@@ -56,7 +56,7 @@ However, there is a slight problem. When Radiance receives requests, it won't be
 
 Hang on though. So far we've been able to look at our pages just fine despite this weird page mapping. Indeed so, but in order to do so we've been making use of a special mechanism in Radiance that can simulate subdomains. This mechanism, the `/!/` path prefix, is provided through a route. We can solve our current mapping problem using routes as well. More specifically, what we want to do is to map all the requests Radiance receives on the path prefix `/paste/` to a request on the subdomain `plaster` with that prefix stripped from the path.
 
-The configuration file that the bootstrapper created has a list for routes that we can use to configure our own. Adding the following two entries to the end of that list should already suffice. The file should be at `config/default/radiance-core/radiance-core.conf.lisp`.
+The configuration file that the bootstrapper created should be at `config/default/radiance-core/radiance-core.conf.lisp`. It has a list for routes that we can use to configure our own. It should look like this in the file: `(:routes)`. Adding the following two entries to the end of that routes list should already suffice.
 
 ```commonlisp
 (paste :mapping "/paste/(.*)" "plaster/\\1")
