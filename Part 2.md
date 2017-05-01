@@ -118,7 +118,7 @@ Ah! Much simpler. The template now only gets a single variable, namely our paste
           <textarea name="text" placeholder="Paste something here" readonly
                     lquery="(text text)"></textarea>
           <nav class="actions">
-            <input type="submit" @formaction="/edit/{0} _id" value="Edit" />
+            <input type="submit" @formaction="plaster/edit/{0} _id" value="Edit" />
           </nav>
         </form>
       </c:using>
