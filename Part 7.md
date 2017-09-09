@@ -50,7 +50,7 @@ Substitute for other means of downloading and running the script as desired. It'
 
 For our example here, during the installation we'll tell it that `guybrush.freedns.example` and `localhost` should be the accepted domains. We'll also run our instance on the standard port of `8080`. Now that we have Radiance installed, we'll want to install Plaster. The setup helpfully points out the place where modules should go; all we need to do is download or clone a copy of Plaster, and place it in there.
 
-Once that's done, Plaster should load automatically. The next step is to configure our existing HTTP server to proxy requests on `/paste/` to `localhost:8080`. That way, the Radiance installation will be reachable without the need for the special port.
+Once that's done, Plaster should load automatically. The next step is to configure our existing HTTP server to proxy requests on `/paste/` to `localhost:8080`. That way, the Radiance installation will be reachable without the need for the special port. Make sure to configure your proxy to forward the host header.
 
 However, there is a slight problem. When Radiance receives requests, it won't be able to dispatch them properly yet. Let's illustrate that with an example. Say there's a request coming in to `guybrush.freedns.example/paste/new`. The primary HTTP server picks it up and proxies it to Radiance. Radiance in turn translates the request URL into the URI `/paste/new` because it knows that `guybrush.freedns.example` is a top-level domain that we cannot change. It then tries to dispatch on it. Unfortunately, no matching dispatcher will be configured, since the only pages we have are listening on `/static/`, `/api/`, `plaster/new`, and `plaster/view`.
 
@@ -86,6 +86,28 @@ For most purposes, changing the configuration files inside `config/` should give
 As an administrator, you will probably also want to get the hang of some of the interfaces-- most importantly the `user`, `auth`, and `session` interfaces that allow you to manage access to the individual parts. While there are things like the `admin` interface that will give you a website to do much of everything in the browser, it is still sometimes useful, or even faster, to be able to do the work from the REPL. As such, while knowledge of programming and Radiance should not be necessary to run a Radiance setup, it can be tremendously helpful.
 
 Instead of setting up a source distribution like described above, you could also load everything you need in and dump a binary. As long as you make sure that `radiance:*environment-root*` is properly adapted to a workable path, and `radiance:startup` is called after the binary is loaded, it should all work out fine. This is particularly favourable for situations where you would like to ship a complete web application that uses Radiance, rather than employing Radiance for a dynamic multi-application setup.
+
+## Configuring Implementation Choices
+As you might have noticed, there's a map of interfaces to implementations in the core configuration file. Using this map you can choose which backend to use for each interface. If the applications you use are coded correctly against the interfaces, you should be able to choose any implementation you like for each interface without having to change any code in your applications. When changing the implementation of an interface, you must restart your Radiance instance or Lisp process completely however.
+
+The Radiance contribs project includes standard implementations for all interfaces, as well as a few different implementations for the `logger`, `server` and `database` interfaces. The following alternatives are available out of the box as of the time of writing this tutorial. If they don't suit your needs, you can also write your own implementation, though we won't get into that in this tutorial.
+
+### Logger
+
+* [i-log4cl](https://github.com/Shirakumo/radiance-contribs/tree/master/i-log4cl) A mapping to [Log4CL](https://github.com/7max/log4cl).
+* [i-verbose](https://github.com/Shirakumo/radiance-contribs/tree/master/i-verbose) [Default] A mapping to [Verbose](https://shinmera.github.io/verbose/).
+
+### Server
+
+* [i-hunchentoot](https://github.com/Shirakumo/radiance-contribs/tree/master/i-hunchentoot) [Default] Interfacing with the [Hunchentoot](http://weitz.de/hunchentoot/) webserver.
+* [i-wookie](https://github.com/Shirakumo/radiance-contribs/tree/master/i-wookie) A backend for the async [Wookie](http://wookie.lyonbros.com/) webserver.
+* [i-woo](https://github.com/Shirakumo/radiance-contribs/tree/master/i-woo) Integrating with the high-performance [Woo](https://github.com/fukamachi/woo) webserver.
+
+### Database
+
+* [i-lambdalite](https://github.com/Shirakumo/radiance-contribs/tree/master/i-lambdalite) [Default] Using the CL-native lightweight [Lambdalite](https://github.com/Wukix/LambdaLite) library.
+* [i-postmodern](https://github.com/Shirakumo/radiance-contribs/tree/master/i-postmodern) Connecting to [PostgreSQL](https://www.postgresql.org/) databases through [Postmodern](http://marijnhaverbeke.nl/postmodern/).
+* [i-sqlite](https://github.com/Shirakumo/radiance-contribs/tree/master/i-sqlite) Using the simple [SQLite](https://www.sqlite.org/) single-file in-process database.
 
 ## Untouched Areas
 While this tutorial touched on a lot of things Radiance offers, it naturally didn't explore everything. There's still a few more standard interfaces that Radiance offers, further things you can do with requests and responses, extension mechanisms for options and resources, custom interface definitions, etc.
