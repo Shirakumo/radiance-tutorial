@@ -24,6 +24,8 @@ The Shirakumo dist you are installing here will also sometimes provide more up-t
 ## Following the Tutorial
 The tutorial is divided up into seven parts, each dealing with adding some features to our application. It is not expected that you go through all the parts at once, but it is expected that you follow along with the code on your own and experiment around with the pieces presented to you. Merely reading through the parts will probably only give you a fraction of the learning experience.
 
+There is also a [part 8](Part%208.md) that addresses general questions that might come up.
+
 With all said and done, you may now move on to the first real part of the tutorial.
 
 [Part 1](Part%201.md)
