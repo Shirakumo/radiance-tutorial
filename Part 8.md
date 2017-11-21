@@ -90,6 +90,15 @@ Finally, if this doesn't help either, you can try to perform the request manuall
 
 This should return a `response` and a `request` object, or error on some failure. You can retrieve the data of the response with `data` to look at it. You can also supply all of the other possible data parts of a request with keyword arguments.
 
+### How do I configure a new domain for Radiance?
+Radiance needs to know all the "top-level domains" that you're going to address your server by, in order to distinguish where subdomains start. To do this, you can simply use `add-domain`:
+
+    (radiance:add-domain "cool.guys.club")
+
+If you test it with `internal-uri` you should find that the address is now properly translated:
+
+    (radiance:internal-uri "everything.cool.guys.club/bla") ; => #@"everything/bla
+
 ### Can I ship my application as an executable?
 Currently this is not directly supported, as the logic to handle path translation for the necessary assets is not handled. However, we would like to support this in a future version of Radiance. For now, you will have to make do with the bootstrapping process that was shown in the previous part.
 
@@ -102,5 +111,9 @@ That depends on the server implementation you use, but in general the answer wil
 ### Is Radiance fast?
 That's a loaded question, and the answer mostly depends on the current setup you're running under. Most of the core Radiance parts have been optimised to a reasonable degree so that they should not bottleneck your setup. *If* your setup is slow, consider benchmarking the individual parts of the whole system to figure out where exactly the pain point is.
 
+## Non-Questions
 ### I don't like Radiance.
-That's fine, there's plenty of other frameworks out there to look at if you don't like this one.
+That's fine, there's plenty of other frameworks out there to look at if you don't like this one. If you can be bothered, we'd still like to hear what you have to say about it, so please [let us know](https://github.com/Shirakumo/radiance/issues/new).
+
+### I like Radiance.
+That's great! If you end up making anything cool with it, we'd be very interested in [hearing about it](https://github.com/Shirakumo/radiance/issues/new).
