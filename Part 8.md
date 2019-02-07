@@ -90,6 +90,13 @@ Finally, if this doesn't help either, you can try to perform the request manuall
 
 This should return a `response` and a `request` object, or error on some failure. You can retrieve the data of the response with `data` to look at it. You can also supply all of the other possible data parts of a request with keyword arguments.
 
+### The URI translation seems different when I do it on the REPL, what's going on?
+When a request arrives from the webserver and calls `request`, it attempts to match all the domains you have configured against the request. If one matches, it strips remembers that domain, stores it in the request object, and then removes it from the request's URI to internalise it. When a URI is then externalised in the context of that request, it looks at the request object and re-attaches the domain the request stored from before.
+
+When you perform a URI translation on the REPL however, you typically do not have a request context, so when you externalise a URI it will simply attach the first domain you configured to it, hoping that that's good enough. However, when you actually perform requests from a different domain than you have configured, this will result in a confusing mismatch.
+
+You can emulate the same request environment by binding `*request*` to an instance of `request` with the correct `:domain` argument and then performing the URI translations.
+
 ### How do I configure a new domain for Radiance?
 Radiance needs to know all the "top-level domains" that you're going to address your server by, in order to distinguish where subdomains start. To do this, you can simply use `add-domain`:
 
