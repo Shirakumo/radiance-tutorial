@@ -212,7 +212,7 @@ If you load `lass.el` into your emacs setup before opening the file, it'll compi
 
 You should now have a `plaster.css` alongside the LASS file. The HTML template we made above should already reference that file, so just refresh the file in your browser to see what it looks like.
 
-We're almost done now. We just need a second template for the viewing of a paste. It should probably look very similar to the edit page. In fact, it's practically the same except for some very minor changes.
+We're almost done now. We just need a second template for the viewing of a paste so this time create a file `plaster/template/view.ctml`. It should probably look very similar to the edit page. In fact, it's practically the same except for some very minor changes.
 
 ```HTML
 <!DOCTYPE html>
