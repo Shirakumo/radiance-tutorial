@@ -116,7 +116,7 @@ Depending on your needs and goals when you write your own application, you may f
 
 We've also not touched on interface implementation at all. Usually you won't need to do anything with that either unless you, as a sysop, have needs that aren't met by the standard contribs. However, there isn't really much to the implementation aspect beyond reading the specification for the respective interface and writing the necessary code. You can have a look at the [existing implementations](https://github.com/Shirakumo/radiance-contribs) to see what an implementation might look like.
 
-For a general list of questions you might encounter (and the answers thereof), see [Part 8](Part%208m.d).
+For a general list of questions you might encounter (and the answers thereof), see [Part 8](Part%208.md).
 
 ## Final Thoughts
 Hopefully this tutorial gave you enough of an insight into how Radiance works and can be used to be able to use it for your own purposes. Don't forget to read through the [core documentation](https://shirakumo.github.io/radiance) as well, as it explains the individual parts that make up Radiance in some detail and links to all the relevant symbols.
