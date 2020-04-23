@@ -5,13 +5,15 @@ This part is a Q&A to answer some common questions and problems you might encoun
 
 ## Configuration
 ### Where are configuration files stored?
-The exact location of the files varies per operating system, your own environment, and the currently active environment. You can get the "root" directory as follows:
+The exact location of the files varies per operating system, your own environment, and the currently active environment. You can get the "root" configuration directory as follows:
 
-    (truename (make-pathname :name NIL :type NIL :defaults radiance:*environment-root*))
+    (truename (radiance:environment-directory T :configuration))
 
-Every environment will have its own directory in there, and in each environment directory, every module will have its own subdirectory as well. A quicker way to find the current location of the configuration file for a specific module is as follows:
+A quicker way to find the current location of the configuration file for a specific module is as follows:
 
     (truename (radiance:mconfig-pathname :radiance))
+
+Note that as per Radiance 2.0, there are also data and cache directories. You can get these with `environment-directory` as well, using the `:cache` and `:data` keys.
 
 ### How do I look at the configuration?
 You can view the currently set configuration for a module using the standard Common Lisp `describe` on the package/module:
@@ -36,6 +38,20 @@ Not out of the box, no. Though you can write your own format. See the documentat
 
 ### What kinds of objects can I store into the configuration?
 Most everything will be persisted, so you should be able to just throw values in there in most cases. Some exceptions and limitations exist, but they're laid out pretty precisely in the [Ubiquitous documentation](https://shinmera.github.io/ubiquitous).
+
+### How do I force links to go over HTTPS?
+You can either define a route in your main Radiance configuration file as follows:
+
+```
+:routes ((force-https :reversal "(.*)/(.*)" "\\1:443/\\2"))
+```
+
+or use a programmatical route definition in your setup file:
+
+```
+(define-route force-https :reversal (uri)
+  (setf (port uri) 443))
+```
 
 ## Interfaces and Implementations
 ### How do I change the implementation of an interface?
@@ -105,6 +121,22 @@ Radiance needs to know all the "top-level domains" that you're going to address 
 If you test it with `internal-uri` you should find that the address is now properly translated:
 
     (radiance:internal-uri "everything.cool.guys.club/bla") ; => #@"everything/bla
+
+### What sort of project structure should I use?
+Radiance does not enforce any particular structure on you and you're free to do as you please. However, a recommended way of structuring is roughly as follows:
+
+```
+project-name/       --- Project root named after project
+  template/         --- Templates and private, static resources (CTML, etc.)
+  static/           --- Public static resources (CSS, JS, images, etc.)
+  project-name.asd  --- ASDF system definition for the project
+  module.lisp       --- DEFINE-MODULE with used domains, exports, etc.
+  db.lisp           --- Database schema definitions and database interaction abstractions
+  api.lisp          --- API endpoint definitions
+  frontend.lisp     --- Frontend page definitions
+```
+
+Naturally it may make sense to break these files apart further if your project gets large, or merge them together if your project is very small.
 
 ### Can I ship my application as an executable?
 Currently this is not directly supported, as the logic to handle path translation for the necessary assets is not handled. However, we would like to support this in a future version of Radiance. For now, you will have to make do with the bootstrapping process that was shown in the previous part.
