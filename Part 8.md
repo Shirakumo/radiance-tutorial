@@ -96,7 +96,7 @@ Then the `landing` page would never be called. This is because Radiance automati
 
 To avoid this problem, you can explicitly supply a priority number to your page like so:
 
-    (define-page (landing 100) "blog/" () ..)
+    (define-page landing ("blog/" 100) () ..)
 
 This will ensure that your page is sorted before, unless of course you also supply a priority to the other page that is equal or higher than this one's.
 
