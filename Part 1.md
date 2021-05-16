@@ -51,6 +51,7 @@ The ASDF system definition should contain your average definition info, with som
 ```common-lisp
 (in-package #:cl-user)
 (asdf:defsystem #:plaster
+  :version "0.0.0"
   :defsystem-depends-on (:radiance)
   :class "radiance:virtual-module"
   :components ((:file "module")
