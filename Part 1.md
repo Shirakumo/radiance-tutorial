@@ -1,42 +1,14 @@
 # Part 1 
 [Part 0](Part%200.md)
 
-## Resources & Documentation
-Here are links to relevant documentation and resource pages that will be useful to refer to for this tutorial.
-
-* [Radiance](https://shirakumo.github.io/radiance)
-* [Interface Definitions](https://github.com/Shirakumo/radiance/blob/master/standard-interfaces.lisp)
-* [Clip](https://shinmera.github.io/clip)
-* [lQuery](https://shinmera.github.io/lquery)
-* [LASS](https://shinmera.github.io/LASS)
-* [Crypto-Shortcuts](https://shinmera.github.io/crypto-shortcuts)
-* [CodeMirror](http://codemirror.net/doc/manual.html)
-* [Ubiquitous](https://shinmera.github.io/ubiquitous)
-
-## A Short Roadmap
-A first step should probably be to consider what kind of capabilities the application should have and in what way they are presented to the user. A paste service is relatively clearly defined, so this isn't much of a problem.
-
-In the end, we'll want:
-
-* A capable editor to write text with (syntax highlighting)
-* A way to post the text under a unique and short URL
-* Being able to post the texts both anonymously and under a profile
-* Some kind of spam protection
-* Seeing pastes on people's profile and a public list
-* Allowing the pastes to be protected by a password and unlisted
-* Being able to access everything programmatically through a REST API
-* A way to edit and delete pastes after the fact
-
-The first step however should be much more minimal. We'll settle with the following:
+In Part 1 of the tutorial we will create an application with:
 
 * A site with a text area that allows you to post
 * A site that allows you to view a previous post
 
-We'll make short mission statements like that for each part of this tutorial to outline what we want to have accomplished by the end of it.
-
 ## Preparing a Module
-Radiance has a standard project structure that we're going to follow for now. To do so, we're creating a new directory somewhere within Quicklisp's local projects, or somewhere that ASDF can find it. It should look like this:
-
+The paste application will be a 'module' in Radiance's parlance. The standard directory structure of a basic Radiance module comprises the following in a directory in Quicklisp's local projects or somewhere ASDF can find the ASD system file: the ASD file, a main file, and two subdirectories. The tutorial follows this standard. The paste module will look like this:
+  
 ```
 plaster/
 plaster/static/
@@ -46,7 +18,7 @@ plaster/module.lisp
 plaster/frontend.lisp
 ```
 
-The ASDF system definition should contain your average definition info, with some extras for Radiance's bookkeeping. Thus, `plaster.asd` should in the very least look like the following.
+The ASDF system definition should contain typical definitions and configuration and some data for Radiance's bookkeeping. Thus, `plaster.asd` should contain at least something like the following.
 
 ```common-lisp
 (in-package #:cl-user)
@@ -59,9 +31,9 @@ The ASDF system definition should contain your average definition info, with som
   :depends-on (:r-clip))
 ```
 
-The `:defsystem-depends-on` and `:class` parts make sure to register the system with Radiance's modules. We'll also use `r-clip`, which is a convenience extension for the [Clip](https://shinmera.github.io/clip) template system. You can use any template system we want to for your own projects. For this, we'll go with Clip. Don't worry if you aren't familiar with it though, I'll explain it in the next section.
+The `:defsystem-depends-on` and `:class` parts register the system with Radiance's modules. We'll also use `r-clip`, which is a convenience extension for the [Clip](https://shinmera.github.io/clip) template system. You could use any template system you want for your own projects, but in this tutorial we will use Clip. Don't worry if you aren't familiar with it. It will be explained later in Part 1.
 
-Next, we'll need the `module.lisp` file, which is basically an extended package definition.
+The `module.lisp` file is basically an extended package definition.
 
 ```common-lisp
 (in-package #:rad-user)
@@ -69,9 +41,9 @@ Next, we'll need the `module.lisp` file, which is basically an extended package 
   (:use #:cl #:radiance))
 ```
 
-The `define-module` macro works just as `defpackage` does. It has some additional options you can use as well, but those are not important right now. Modules are packages that allow metadata to be associated with them. Radiance makes use of this feature in a variety of ways, which is why every application written for Radiance should have a module.
+The `define-module` macro works the same way `defpackage` works but can accept some additional options, which we don't need now. A module is a specialised package that allows metadata to be associated with itself. Radiance makes use of this metadata in a variety of ways, which is why every application written for Radiance should have a module.
 
-Once Radiance is loaded, you can have a look at all of the currently available modules with `radiance:list-modules`. The behaviour of `describe` for modules is also extended, and will list some useful inspection information that can help you figure out what a module provides and does.
+Once Radiance is loaded, you can have a look at all of the currently available modules with `radiance:list-modules`. The behaviour of `describe` for packages is also extended for modules. `discribe` will list some useful inspection information that can help you figure out what a module provides and does.
 
 The last file that we've referenced so far is `frontend.lisp`, which you can fill with just the `in-package` statement:
 
@@ -79,25 +51,25 @@ The last file that we've referenced so far is `frontend.lisp`, which you can fil
 (in-package #:plaster)
 ```
 
-Make sure to reload your ASDF/Quicklisp system cache and load your system from the REPL.
+Now is the time to test our module. First, reload your ASDF/Quicklisp system cache and load your system from the REPL:
 
 ```common-lisp
 (ql:register-local-projects)
 (ql:quickload :plaster)
 ```
 
-Next we'll want to start up Radiance. If this is your first time doing that, you'll see some welcoming messages printed on the REPL that will point you to a test page. Open it up if you like. You may ignore the notes about the configuration for the time being, we'll get into that in a later part of this series.
+If you get bumped into the Lisp debugger at this point due to the condition `ENVIRONMENT-NOT-SET`, this is to be expected if you are using Radiance for the first time since you started Lisp. In this case you should choose the `CONTINUE` restart. Next we'll start up Radiance. If this is your first time doing that, you'll see some welcoming messages printed on the REPL that will point you to a test page, which you should visit. You may ignore the notes about the configuration for the time being. We'll get into that in a later part of this tutorial. Start up Radiance like this:
 
 ```common-lisp
 (radiance:startup)
 ```
 
-Now we're all set and ready to start all the actual work on our application.
+If this didn't produce any errors, you have correctly created a Radiance module and are ready to make the application do something.
 
 ## Designing a Template
-Often times it's a good idea to design the user interface first. Doing so will give you a good idea of what exactly you will need to support in your backend and what it will all look like in the end. Clip's main strength lies in exactly this-- it allows you to write templates that you can view in the browser directly without any processing necessary. This means you can write your page without needing to write a single piece of code. I don't expect you to be familiar with Clip, so I'll give a short crash course here as well. For more information, see its [documentation](https://shinmera.github.io/clip).
+Oftentimes it's a good idea to design the user interface first. Doing so will give you a good idea of what exactly you will need to support in your backend and what it will all look like in the end. Clip's main strength lies in exactly this-- it allows you to write templates that you can view in the browser directly without any processing necessary. This means you can write your page without needing to write a single piece of code. You are not expected to be familiar with Clip already, so the tutorial will give you a short crash course on it. For more information about it, see its [documentation](https://shinmera.github.io/clip).
 
-Create a file `plaster/template/edit.ctml` and edit it to contain something similar to this.
+Let's create a template. Create the file `plaster/template/edit.ctml` and edit it to contain something similar to this:
 
 ```html
 <!DOCTYPE html>
@@ -132,11 +104,11 @@ Create a file `plaster/template/edit.ctml` and edit it to contain something simi
 </html>
 ```
 
-For the most part, this is standard XHTML5. The only special things in the template so far are the `@href` and `@action`. These special attributes use `uri`s as their values, which are then translated and used as replacements for the `href` and `action` attribute values respectively once the template is processed. This translation is part of Radiance's routing system and ensures that links within your templates are turned into references that work on any possible server setup. All non-standard characters in a template URI are URL-encoded automatically as well, with the exception of `?&=#` as they are necessary to specify the query and fragment parts of a URL. If you want to use them as literals, you'll have to insert them through a variable. We'll get to variables in template URIs at a later point, though.
+For the most part, this is standard XHTML5. The only special things in the template so far are the `@href` and `@action`. These special attributes use `uri`s as their values, which are then translated and used as replacements for the `href` and `action` attribute values respectively when the template is processed. This translation is part of Radiance's routing system and ensures that links within templates are turned into references that work on any possible server setup. All non-standard characters in a template URI are URL-encoded automatically, with the exception of `?&=#`, as they are necessary to specify the query and fragment parts of a URL. If you want to use them`?&=#` as literals, you'll have to insert them through a variable. We'll discuss variables in template URIs later in this tutorial.
 
-A URI in Radiance is an object that represents a trimmed down URL. It can contain a list of domains, a port number, and a path string. URIs are a central aspect and used in several places in order to handle references and represent URLs. We'll talk more about them once we get to routing.
+A URI in Radiance is an object that represents a trimmed down URL. It can contain a list of domains, a port number, and a path string. URIs have central importance in Radiance. Radiance uses them in several ways to handle references and represent URLs. We'll discuss them more when we cover routing.
 
-Back to templates! Since this file is mostly just HTML, you can open it up in your browser and have a look. It's pretty barren for now, but we can fix that easily enough by writing some CSS. However, since writing plain CSS becomes pretty cumbersome fairly quick, we're going to use a CSS compiler, namely [LASS](https://shinmera.github.io/LASS). It should be fairly intuitive to realise how this translates. So, open up `plaster/static/plaster.lass` and create a file similar to this:
+We digressed from our template file. Refocusing on the file, we notice it is mostly just HTML. You can open it in your browser and have a look. It's pretty barren for now, but we can fix that easily enough by writing some CSS. However, since writing plain CSS quickly becomes cumbersome, we're going to create our CSS with a compiler, [LASS](https://shinmera.github.io/LASS). The way LASS translates code to CSS should be fairly intuitive. Open `plaster/static/plaster.lass` and create a file similar to this:
 
 ```common-lisp
 (body
@@ -202,18 +174,18 @@ Back to templates! Since this file is mostly just HTML, you can open it up in yo
      :display inline-block)))))
 ```
 
-This paste contains a tad more things than absolutely necessary for our needs right now, but in order to avoid having to paste an update for new elements in future parts, I've just inserted the completed style sheet here.
+These styles include more things than necessary for our present needs, but we'll use those things later in the tutorial.
 
-If you load `lass.el` into your emacs setup before opening the file, it'll compile it to the according CSS file automatically whenever you save. Otherwise, load LASS into your lisp and compile the file.
+If you load `lass.el` into your emacs setup before opening the file, it'll compile a LASS file to an CSS file automatically whenever you save. Otherwise, load LASS into your lisp and compile the file:
 
 ```common-lisp
 (ql:quickload :lass)
 (lass:generate (asdf:system-relative-pathname :plaster "static/plaster.lass"))
 ```
 
-You should now have a `plaster.css` alongside the LASS file. The HTML template we made above should already reference that file, so just refresh the file in your browser to see what it looks like.
+You should now have a `plaster.css` alongside the LASS file in your project directory. The HTML template we made above should already reference that file, but we have not set up web pages yet so we can't see the page styling in action at this point.
 
-We're almost done now. We just need a second template for the viewing of a paste so this time create a file `plaster/template/view.ctml`. It should probably look very similar to the edit page. In fact, it's practically the same except for some very minor changes.
+We still need another template to create a view of a paste. Create the file `plaster/template/view.ctml`. It should probably look very similar to the edit page. In fact, it's practically the same except for some very minor changes.
 
 ```HTML
 <!DOCTYPE html>
@@ -245,10 +217,10 @@ We're almost done now. We just need a second template for the viewing of a paste
 </html>
 ```
 
-The rationale for re-using the form and just making the fields `readonly` is that we can re-use the CSS file verbatim, and that it will be convenient for additions later on, when we add actions like repasting, editing, annotating, and so forth.
+The rationale for reusing the form and making the fields `readonly` is that we can reuse the CSS file verbatim and it will be convenient for additions later on when we add actions like repasting, editing, annotating, and so forth.
 
 ## Setting Up Pages
-Now that we have the necessary templates worked out, we can start with our actual application. To begin with we'll want two pages, one to make a paste, and one to view a paste. To do this, we'll populate the `frontend.lisp` like so.
+Now that we have the necessary templates worked out, we can make our application do something visible. To begin with we'll define two pages: one to make a paste and one to view a paste. To accomplish this, we'll make `frontend.lisp` contain the following:
 
 ```common-lisp
 (in-package #:plaster)
@@ -260,15 +232,15 @@ Now that we have the necessary templates worked out, we can start with our actua
 
 As they stand, the definitions won't actually deliver any content yet. Don't worry, we'll get around to that in a minute. For now, let's just see what this does.
 
-In Radiance, the code that is executed to satisfy any particular request is decided by a mechanism called "uri dispatching". Therein a request's target URL is compared against a sequence of dispatchers. As soon as a dispatcher's URI matches gainst the request, the dispatcher is executed and the dispatching ends.
+In Radiance, the code that is executed to satisfy any particular request is decided by a mechanism called "URI dispatching". Therein, a request's target URL is compared against a sequence of dispatchers. The URI dispatching executes the first, and only the first, dispatcher whose URI matches the request.
 
-For our first page, `edit`, we define `plaster/edit` which decomposes into an URI with one subdomain, `plaster`, and a path component of `edit`. For the second page, `view`, the resulting URI has the same subdomain, but its path component is a bit more complex as `view/(.*)` is a regular expression. The path component is the only part of a URI that can contain a regular expression.
+For our first page, `edit`, we define the URI `plaster/edit`, which decomposes into subdomain `plaster` and path `edit`. For the second page, `view`, which decomposes into the same subdomain and a path component containing a regular expression, `view/(.*)`. The path component is the only part of a URI that can contain a regular expression.
 
 Following the URI is a list of page options, which is used in the `view` page to define a capture variable for the regex group. In the page's body we can now refer to the value captured by the group with the `id` variable.
 
-You may be wondering why we're using a subdomain for both of our URIs. Radiance's convention is that each application should put all of its pages onto a subdomain named after the module. This avoids pages from clashing with each other. If you don't want to require the user to access the application through a subdomain, you can fix that later by using a route. We'll get to routing in a later part. For now, just know that there's a good reason for this convention.
+You may be wondering why we're using a subdomain for both of our URIs. Radiance's convention is that each application should put all of its pages onto a subdomain named after the module. This avoids pages from clashing with each other. If you don't want to require the user to access the application through a subdomain, you can fix that by using a route. We'll cover routing in a later part of the tutorial. For now, just trust that there's a good reason for this convention.
 
-Now we'll want to actually process the templates in the pages. This does not require much, for now. Simply change the definitions to look like this: 
+We have defined the `edit` and `view` pages, but they do nothing. Now we'll want them to actually process the templates. This does not require much, for now. Simply change the definitions to look like this: 
 
 ```common-lisp
 (define-page edit "plaster/edit" (:clip "edit.ctml")
@@ -281,7 +253,7 @@ Now we'll want to actually process the templates in the pages. This does not req
 A short recompile later, and visiting [the according page](http://localhost:8080/!/plaster/edit) should show you the properly rendered template. Hovering over the `New` link in the header will reveal that Clip did indeed translate the URI into a fixed URL that points to the appropriate "external" resource. You should also note that Clip will always output XHTML5, and set the appropriate content-type header for that.
 
 ## API Endpoints and Databases
-Now that we have pages going, we'll need to set up an API endpoint to paste to. In Radiance, you are encouraged to set up any kind of data manipulation action as an API endpoint rather than handling it in a page, both to separate concerns, and to make your application accessible programmatically. Since we've already referred to the API endpoint we need in our form, let's just go ahead and create it.
+Now that we have pages working, we'll need to set up an API endpoint to paste to. In Radiance, you are encouraged to set up any kind of data manipulation action as an API endpoint rather than handling it in a page, both to separate concerns, and to make your application accessible programmatically. Since we've already referred to the API endpoint we need in our form, let's just go ahead and create it.
 
 ```common-lisp
 (define-api plaster/new (text &optional title) ())
@@ -293,7 +265,7 @@ You may be wondering why API endpoints don't allow regex-based parameters in the
 
 So far this endpoint doesn't do anything except check that it gets the required `text` argument somehow. Not very useful. Indeed, we'll need to get access to a database to store our information in. Radiance provides for that as well, by way of an interface. Interfaces are a form of contract for the signatures of symbols in a package. What this means is that an interface is a specification that defines the signatures and behaviour of functions, variables, macros, etc. within a package. When something wants to make use of an interface's functionality, a specific implementation of that interface is then loaded.
 
-A database interface is perhaps the most obvious and sensible example. After all, there are many different types of databases, but all of them can be used in a very similar fashion for the most part. As such it makes sense to define an interface for databases in general, and let the choice of the specific database up to someone else-- usually the administrator of a final Radiance installation.
+A database interface is perhaps the most obvious and sensible example. After all, there are many different types of databases, but all of them can be used in a very similar fashion for the most part. As such it makes sense to define an interface for databases in general, and leave the choice of the specific database up to someone else-- usually the administrator of a final Radiance installation.
 
 Now, in order to make use of the database interface, we'll first need to add it to our system's dependencies.
 
@@ -304,11 +276,11 @@ Now, in order to make use of the database interface, we'll first need to add it 
                :r-clip))
 ```
 
-Reload the system, and a standard database implementation should be pulled in. Which it is in specific shouldn't matter for now, you'll learn how to choose a specific database later. It should also automatically connect to a default database instance so that we can go ahead with using it straight away. Note that if you try to load your system now after starting a fresh Lisp image, you will get an error, noting that the environment is unset. The environment is basically what decides which implementations to use for which interfaces. Since your system now depends on an interface, it can't load it without knowing this mapping. The `default` environment should be fine for now, so you can get by that error by choosing the first `continue` restart.
+Reload the system, and a standard database implementation should be pulled in. Which it is specifically shouldn't matter yet. You'll learn how to choose a specific database later. Our application should also automatically connect to a default database instance so that we can use it straight away. Note that if you try to load your system now after starting a fresh Lisp image, you will get an error message saying that the environment is unset. The environment is basically what decides which implementations to use for which interfaces. Since your system now depends on an interface, it can't load it without knowing this mapping. The `default` environment should be fine for now, so you can get by that error by choosing the first `continue` restart.
 
-Now. Before we can store data away, we'll need to define a schema. Not all database implementations require a schema to operate, but some of them do. As such, you should always define a schema, even if it might be unnecessary for your specific choice of database. After all, if you're developing an application for general use, you can't constrain it to a particular setup.
+Before we can store data, we'll need to define a schema. Not all database implementations require a schema to operate, but some of them do. You should always define a schema, even if it might be unnecessary for your specific choice of database. After all, if you're developing an application for general use, you can't constrain it to a particular setup.
 
-When you start thinking about the schema definition, you might realise that there's a bit of a conundrum. You can't just define the database schema as a top-level form, since at the time your application is loaded, the database might not have been connected yet. The connection only happens once Radiance is started up. This is where Radiance's trigger system comes in handy. The interface for the database specifies that a hook called `database:connected` is triggered whenever the database is ready. We can make use of that.
+When you start thinking about the schema definition, you might face a conundrum. You can't just define the database schema as a top-level form, since at the time your application is loaded, the database might not have been connected yet. The connection only happens once Radiance is started up. This is where Radiance's trigger system comes in handy. The interface for the database specifies that a hook called `database:connected` is triggered whenever the database is ready. We can make use of that.
 
 ```common-lisp
 (define-trigger db:connected ()
@@ -317,7 +289,7 @@ When you start thinking about the schema definition, you might realise that ther
                                (text :text))))
 ```
 
-If you compile the trigger after the database has already been connected, it will be triggered automatically, since the hook is a "switch hook" that automatically calls new trigger definitions if it has already been switched on. With our schema at the ready, we can modify the API endpoint to insert the data.
+If you compile the trigger after the database has already been connected, it will be triggered automatically, since the hook is a "switch hook" that automatically calls new trigger definitions if it has already been switched on. With our schema ready, we can modify the API endpoint to insert the data.
 
 ```common-lisp
 (define-api plaster/new (text &optional title) ()
@@ -388,10 +360,10 @@ The only things changed are the `input` and `textarea` elements, which now have 
 You should now be able to visit [the /edit page](http://localhost:8080/!/plaster/edit), create a paste, and view it. And with that we have achieved the goals we've set for the first part of this tutorial.
 
 ## Conclusion
-Despite this seeming like a small goal to reach, we've touched on many different parts already now. We've looked at how to start out with a new module, how to define pages and API endpoints, how to interface and get started with a database, how to integrate Clip templates and how to use them, and finally how to use LASS for CSS compilation. If you're feeling a bit overwhelmed, don't worry. Try going through this part again and look at the documentation of the associated systems. While there are many parts, the ways in which they function are not altogether complicated.
+Despite this seeming like a small goal to reach, we've touched on many different parts of Radiance already. We've seen how to create a new module, how to define pages and API endpoints, how to interface with and access a database, how to integrate Clip templates and use them, and how to use LASS for CSS compilation. If you're feeling a bit overwhelmed, don't worry. Try going through this part again and look at the documentation of the associated systems. While there are many parts, the ways in which they function are not altogether complicated.
 
-In case you're encountering error pages and you'd like to get something more useful than a mere message, you can `(setf radiance:*debugger* T)`, which will cause the debugger to be invoked on request errors. With Slime and some looking around, I'm sure that should help you figure out what went wrong rather quickly.
+In case you're encountering error pages and you'd like to get something more useful than a mere message, you can `(setf radiance:*debugger* T)`, which will cause the debugger to be invoked on request errors. With SLIME and a little detective work, you should quickly be able to figure out what went wrong.
 
-We've taken our first, hopefully successful, steps building our application now. Hopefully things aren't looking too daunting to you yet. Once you think that you've understood it all well and proper enough, you can move on to the second part, in which we'll flesh things out a bit by adding some more actions. 
+You've just taken your first steps building the paste application. Hopefully you are undaunted. Once you think that you've understood it all well enough, you can move on to the second part, in which you'll flesh things out a bit by adding some more actions. 
 
 [Part 2](Part%202.md)

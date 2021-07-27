@@ -1,31 +1,60 @@
 # Part 0
 ## Introduction
-While many things in Radiance will work very similarly to other web frameworks, others will not. Either way, you should probably follow this tutorial along step by step, and in the very least keep the [documentation](https://shirakumo.github.io/radiance) open to reference functions alongside.
+In Radiance, many things work similarly to the way they work in other web frameworks, but some things do not. No matter which aspects of Radiance you decide to use, you should probably try performing the steps in this tutorial yourself, while keeping open the [Radiance documentation (programmer's reference)](https://shirakumo.github.io/radiance) so you can study the [reference definitions](https://shirakumo.github.io/radiance/#index) of Radiance's functions, macros, etc. as you first encounter them in this tutorial. The [reference definitions](https://shirakumo.github.io/radiance/#index) comprise a comprehensive index of Radiance's functions, macros, generic functions, and of the special variables, routes, options, hooks, resources, conditions, and field types of the thirteen built-in Radiance modules. Each definition includes cross references to related symbols and a link to the defined symbol's source code.
 
-In this tutorial we're going to build a fully-fledged paste service from the ground up. I'm going to show this in the way that any other application might be designed. As such, we're going to start out simple and expand from there, testing things along the way.
+Besides the reference definitions, the documentation includes a basic quick-start guide, a pointer to this tutorial, a brief capsule of [pointers to Radiance's development](https://shirakumo.github.io/radiance/#system), and an important, in-depth overview of [Radiance's concepts and parts](https://shirakumo.github.io/radiance/#1._radiance_concepts_&_parts) that you should at least skim or scan.
 
-It is expected that you have a moderate understanding and amount of experience with Common Lisp, know how to create basic projects, and how to manage systems, dependencies, and packages.
+This tutorial will guide you in building a fully fledged paste service from the ground up. We're going to do it the same way any application might be designed. Thus we will start out simple and successively elaborate, testing functionality along the way. To be comfortable following the tutorial, you should have an intermediate level of experience with Common Lisp, know how to create basic Lisp projects, and know how to manage Lisp systems, dependencies, and packages. The tutorial was written for Radiance 1.0; it might not work for later versions and definitely will not work for earlier versions.
 
-This tutorial was written for Radiance 1.0; it may not work for later versions and will most definitely not work for earlier versions.
-
-## Getting Set Up
-It is expected that you have a working Common Lisp environment including Quicklisp and ASDF going. If you do not, have a look at [Portacle](https://shinmera.github.io/portacle) for a quick setup.
+## Dependencies
+It is expected that you have a working Common Lisp environment, including Quicklisp and ASDF. If you do not, consider using [Portacle](https://shinmera.github.io/portacle) for quick setup.
 
 ## Installing Radiance
-Due to various circumstances, Radiance is not provided through the standard Quicklisp distribution. However, Quicklisp supports multiple distributions (called "dists") and adding one is just a matter of a single line. The following should be sufficient to install Radiance then:
+Due to various circumstances, Radiance is not provided through the standard Quicklisp distribution. However, Quicklisp supports multiple distributions (called "dists"). Adding a distribution to Quicklisp is a matter of just one line. The following should be sufficient to install Radiance:
 
 ```common-lisp
 (ql-dist:install-dist "http://dist.tymoon.eu/shirakumo.txt")
 (ql:quickload :radiance)
 ```
 
-The Shirakumo dist you are installing here will also sometimes provide more up-to-date versions of other libraries.
+The Shirakumo dist will sometimes provide more up-to-date versions of other libraries than the standard Quicklisp distribution provides.
 
 ## Following the Tutorial
-The tutorial is divided up into seven parts, each dealing with adding some features to our application. It is not expected that you go through all the parts at once, but it is expected that you follow along with the code on your own and experiment around with the pieces presented to you. Merely reading through the parts will probably only give you a fraction of the learning experience.
+The first seven parts of tutorial deal with the incremental creation of your application's features. You are not expected to go through all the parts at once, but you are expected to copy the code from a part of the tutorial, experiment with it, get it to work, and move on to the next part. Merely reading through the tutorial will probably only give you a fraction of the total learning experience.
 
-There is also a [part 8](Part%208.md) that addresses general questions that might come up.
+The last part, [Part 8](Part%208.md), addresses general questions that might come up.
 
-With all said and done, you may now move on to the first real part of the tutorial.
+## Resources & Documentation
+Here are links to relevant documentation and resource pages that will be useful to refer to as you go through this tutorial.
+
+* [Radiance](https://shirakumo.github.io/radiance)
+* [Interface Definitions](https://github.com/Shirakumo/radiance/blob/master/standard-interfaces.lisp)
+* [Clip](https://shinmera.github.io/clip)
+* [lQuery](https://shinmera.github.io/lquery)
+* [LASS](https://shinmera.github.io/LASS)
+* [Crypto-Shortcuts](https://shinmera.github.io/crypto-shortcuts)
+* [CodeMirror](http://codemirror.net/doc/manual.html)
+* [Ubiquitous](https://shinmera.github.io/ubiquitous)
+
+## Tutorial Roadmap
+A good roadmap for the creation of a paste service can be based upon a list of the application's capabilities and interactions with the user. A paste service is relatively well defined, so this isn't much of a problem. Our roadmap will include the creation of:
+
+* A capable editor to write text with syntax highlighting
+* A way to post the text under a unique and short URL
+* The ability to post texts both anonymously and under a profile
+* Some kind of spam protection
+* A way to see pastes on people's profiles and on a public list
+* A way to protect pastes by password and unlist them
+* Programmatic access to everything through a REST API
+* A way to edit and delete pastes after the posting them
+
+However, the mission of the tutorial's Part 1 will only be to create:
+
+* A site with a text area that allows you to post
+* A site that allows you to view a previous post
+
+Each part of this tutorial except Part 8 begins with a limited mission like this to add a few visible features to the application.
+
+With this introduction out of the way, you are ready for Part 1, where you will create the posting and viewing sites.
 
 [Part 1](Part%201.md)
