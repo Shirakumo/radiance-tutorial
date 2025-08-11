@@ -4,14 +4,14 @@
 ## Resources & Documentation
 Here are links to relevant documentation and resource pages that will be useful to refer to for this tutorial.
 
-* [Radiance](https://shirakumo.github.io/radiance)
-* [Interface Definitions](https://github.com/Shirakumo/radiance/blob/master/standard-interfaces.lisp)
-* [Clip](https://shinmera.github.io/clip)
-* [lQuery](https://shinmera.github.io/lquery)
-* [LASS](https://shinmera.github.io/LASS)
-* [Crypto-Shortcuts](https://shinmera.github.io/crypto-shortcuts)
+* [Radiance](https://shirakumo.org/docs/radiance)
+* [Interface Definitions](https://shirakumo.org/project/radiance/blob/master/standard-interfaces.lisp)
+* [Clip](https://shinmera.com/docs/clip)
+* [lQuery](https://shinmera.com/docs/lquery)
+* [LASS](https://shinmera.com/docs/LASS)
+* [Crypto-Shortcuts](https://shinmera.com/docs/crypto-shortcuts)
 * [CodeMirror](http://codemirror.net/doc/manual.html)
-* [Ubiquitous](https://shinmera.github.io/ubiquitous)
+* [Ubiquitous](https://shinmera.com/docs/ubiquitous)
 
 ## A Short Roadmap
 Our ToDo list for this part looks as follows:
@@ -64,7 +64,7 @@ Naturally our creation function needs a new argument to account for this, too.
       paste)))
 ```
 
-Naturally we need to pass the author to it from our API endpoint. But hold on, where do we even know which user it is from? The [user interface](https://github.com/Shirakumo/radiance/blob/master/standard-interfaces.lisp#L63) does not give us anything that can do that for us. Indeed, we won't be able to get what we need with that interface alone. We need something else as well, namely authentication. For this, too, we have an interface, conveniently called [`auth`](https://github.com/Shirakumo/radiance/blob/master/standard-interfaces.lisp#L37). I trust you are able to add it to the system dependencies on your own.
+Naturally we need to pass the author to it from our API endpoint. But hold on, where do we even know which user it is from? The [user interface](https://shirakumo.org/project/radiance/blob/master/standard-interfaces.lisp#L63) does not give us anything that can do that for us. Indeed, we won't be able to get what we need with that interface alone. We need something else as well, namely authentication. For this, too, we have an interface, conveniently called [`auth`](https://shirakumo.org/project/radiance/blob/master/standard-interfaces.lisp#L37). I trust you are able to add it to the system dependencies on your own.
 
 In order to retrieve the current user, we'll need to make use of a new interface called `auth`, which handles authentication. So, we'll first need to add that interface to the system's dependencies. Then, using `auth:current`, we can then set the proper author on our `plaster/new` endpoint.
 
@@ -213,7 +213,7 @@ Being able to call arbitrary functions from the templates makes things very hand
 Don't forget to adjust the nav in the head on the edit and list templates, too!
 
 ## Rate Limiting
-We should probably also take care not to allow a spammer to hammer out as many pastes as they want within no time. We could trivially implement rate limiting ourselves by just capturing the IP and an access timestamp, but fortunately enough this is also a common enough problem that Radiance provides an interface for it that we can just use directly. The interface is called [rate](https://github.com/Shirakumo/radiance/blob/master/standard-interfaces.lisp#L17).
+We should probably also take care not to allow a spammer to hammer out as many pastes as they want within no time. We could trivially implement rate limiting ourselves by just capturing the IP and an access timestamp, but fortunately enough this is also a common enough problem that Radiance provides an interface for it that we can just use directly. The interface is called [rate](https://shirakumo.org/project/radiance/blob/master/standard-interfaces.lisp#L17).
 
 Given that it is a very simple task, it is only justified that using the rate interface is very simple too. All we need to do is wrap the `plaster/new` API endpoint in `rate:with-limitation` and define a rate limitation behaviour using `rate:define-limit`.
 
@@ -235,7 +235,7 @@ You could also rate limit the other endpoints and pages, but for the most part, 
 Don't forget to add the interface to your system dependencies!
 
 ## A User Profile
-Providing user profiles is yet another common problem, for which Radiance offers yet another interface, namely [`profile`](https://github.com/Shirakumo/radiance/blob/master/standard-interfaces.lisp#L92). This interface is responsible for expanding the users a bit for usage in any kind of software that wants to allow users that aren't merely internal or privately associated. As such it gives you access to arbitrary user fields, an avatar, and panels. The panels are arbitrary templates that you can render onto the profile page of a user.
+Providing user profiles is yet another common problem, for which Radiance offers yet another interface, namely [`profile`](https://shirakumo.org/project/radiance/blob/master/standard-interfaces.lisp#L92). This interface is responsible for expanding the users a bit for usage in any kind of software that wants to allow users that aren't merely internal or privately associated. As such it gives you access to arbitrary user fields, an avatar, and panels. The panels are arbitrary templates that you can render onto the profile page of a user.
 
 Given this, there are two ways for us to offer a profile page for users on our service. We can either define a profile panel that lists all the pastes, or define our own page entirely. Panels lend themselves well for information that is directly tied to the user like posting statistics and other information. Actual post objects like our pastes here should probably be on a separate page however.
 

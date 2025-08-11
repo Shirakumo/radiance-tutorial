@@ -4,14 +4,14 @@
 ## Resources & Documentation
 Here are links to relevant documentation and resource pages that will be useful to refer to for this tutorial.
 
-* [Radiance](https://shirakumo.github.io/radiance)
-* [Interface Definitions](https://github.com/Shirakumo/radiance/blob/master/standard-interfaces.lisp)
-* [Clip](https://shinmera.github.io/clip)
-* [lQuery](https://shinmera.github.io/lquery)
-* [LASS](https://shinmera.github.io/LASS)
-* [Crypto-Shortcuts](https://shinmera.github.io/crypto-shortcuts)
+* [Radiance](https://shirakumo.org/docs/radiance)
+* [Interface Definitions](https://shirakumo.org/project/radiance/blob/master/standard-interfaces.lisp)
+* [Clip](https://shinmera.com/docs/clip)
+* [lQuery](https://shinmera.com/docs/lquery)
+* [LASS](https://shinmera.com/docs/LASS)
+* [Crypto-Shortcuts](https://shinmera.com/docs/crypto-shortcuts)
 * [CodeMirror](http://codemirror.net/doc/manual.html)
-* [Ubiquitous](https://shinmera.github.io/ubiquitous)
+* [Ubiquitous](https://shinmera.com/docs/ubiquitous)
 
 ## A Short Roadmap
 This is the last part that deals with actual development of our application. The final part is one from the perspective of an administrator.
@@ -29,7 +29,7 @@ However, in order to properly be able to mark up the text, we need a new field o
 
 One thing we definitely should go into though is what values are allowed for the field. After all, we will probably want to offer a selector to the user so that they can pick an available mode, rather than having to type it in manually. The simplest way of going about this would be to define a list of all known modes that CodeMirror supports. That's a bad idea however for multiple reasons, so instead I'll go another way. Namely, we'll automatically gather the information from the CodeMirror distribution.
 
-The first step towards this is to grab a copy of CodeMirror. We'll use a cleaned version here that has all of the extra files stripped away. Download [a release](https://github.com/Shinmera/codemirror-dist/releases/) and extract it into `plaster/static/codemirror/`. Now that we have this, we can add some code to read out all the modes.
+The first step towards this is to grab a copy of CodeMirror. We'll use a cleaned version here that has all of the extra files stripped away. Download [a release](https://shinmera.com/project/codemirror-dist/releases/) and extract it into `plaster/static/codemirror/`. Now that we have this, we can add some code to read out all the modes.
 
 ```common-lisp
 (defparameter *paste-types*
@@ -357,7 +357,7 @@ All things considered, our trigger should now look like this:
   (apply #'user:grant "anonymous" (config :permissions :anonymous)))
 ```
 
-The `defaulted-config` function sets the configuration value at the path to the first argument if it has not yet been set before, which is exactly what we need. We can then access the value with `config`. Both of these functions are thing wrappers around [Ubiquitous](https://shinmera.github.io/ubiquitous)' `defaulted-value` and `value` that take care of persisting the proper storage for our module. What's also nice about this is that we get a persistent, but random for each setup password salt automatically.
+The `defaulted-config` function sets the configuration value at the path to the first argument if it has not yet been set before, which is exactly what we need. We can then access the value with `config`. Both of these functions are thing wrappers around [Ubiquitous](https://shinmera.com/docs/ubiquitous)' `defaulted-value` and `value` that take care of persisting the proper storage for our module. What's also nice about this is that we get a persistent, but random for each setup password salt automatically.
 
 With the configuration set, we just have to exchange the references to our special variables with `(config ..)` calls. Your application should work just the same as it did before once you're done.
 

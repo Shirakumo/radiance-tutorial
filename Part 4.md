@@ -4,14 +4,14 @@
 ## Resources & Documentation
 Here are links to relevant documentation and resource pages that will be useful to refer to for this tutorial.
 
-* [Radiance](https://shirakumo.github.io/radiance)
-* [Interface Definitions](https://github.com/Shirakumo/radiance/blob/master/standard-interfaces.lisp)
-* [Clip](https://shinmera.github.io/clip)
-* [lQuery](https://shinmera.github.io/lquery)
-* [LASS](https://shinmera.github.io/LASS)
-* [Crypto-Shortcuts](https://shinmera.github.io/crypto-shortcuts)
+* [Radiance](https://shirakumo.org/docs/radiance)
+* [Interface Definitions](https://shirakumo.org/project/radiance/blob/master/standard-interfaces.lisp)
+* [Clip](https://shinmera.com/docs/clip)
+* [lQuery](https://shinmera.com/docs/lquery)
+* [LASS](https://shinmera.com/docs/LASS)
+* [Crypto-Shortcuts](https://shinmera.com/docs/crypto-shortcuts)
 * [CodeMirror](http://codemirror.net/doc/manual.html)
-* [Ubiquitous](https://shinmera.github.io/ubiquitous)
+* [Ubiquitous](https://shinmera.com/docs/ubiquitous)
 
 ## A Short Roadmap
 Well then. Our homework for today is:
@@ -175,7 +175,7 @@ First, some more functions to coerce some data.
   (when password (cryptos:pbkdf2-hash password *password-salt*)))
 ```
 
-We allow both string and integer arguments for the visibility here in order to make the API a bit more "human". For the hashing of the password we've employed the help of another library called [Crypto-Shortcuts](https://shinmera.github.io/crypto-shortcuts), which should also be added to the ASDF system. This is also the first occurrence of the `or*` macro, which is just the same as `or`, but treats an empty string as NIL, which is a very useful behaviour for GET and POST arguments on web interfaces. The `api-error` is a shorthand for signalling a condition of type `api-error`, which will give useful API output rather than a generic failure page.
+We allow both string and integer arguments for the visibility here in order to make the API a bit more "human". For the hashing of the password we've employed the help of another library called [Crypto-Shortcuts](https://shinmera.com/docs/crypto-shortcuts), which should also be added to the ASDF system. This is also the first occurrence of the `or*` macro, which is just the same as `or`, but treats an empty string as NIL, which is a very useful behaviour for GET and POST arguments on web interfaces. The `api-error` is a shorthand for signalling a condition of type `api-error`, which will give useful API output rather than a generic failure page.
 
 Next is the actual create function itself. While I was at it I've also factored out the annotation association.
 

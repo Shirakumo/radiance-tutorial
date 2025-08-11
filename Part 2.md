@@ -4,14 +4,14 @@
 ## Resources & Documentation
 Here are links to relevant documentation and resource pages that will be useful to refer to for this tutorial.
 
-* [Radiance](https://shirakumo.github.io/radiance)
-* [Interface Definitions](https://github.com/Shirakumo/radiance/blob/master/standard-interfaces.lisp)
-* [Clip](https://shinmera.github.io/clip)
-* [lQuery](https://shinmera.github.io/lquery)
-* [LASS](https://shinmera.github.io/LASS)
-* [Crypto-Shortcuts](https://shinmera.github.io/crypto-shortcuts)
+* [Radiance](https://shirakumo.org/docs/radiance)
+* [Interface Definitions](https://shirakumo.org/project/radiance/blob/master/standard-interfaces.lisp)
+* [Clip](https://shinmera.com/docs/clip)
+* [lQuery](https://shinmera.com/docs/lquery)
+* [LASS](https://shinmera.com/docs/LASS)
+* [Crypto-Shortcuts](https://shinmera.com/docs/crypto-shortcuts)
 * [CodeMirror](http://codemirror.net/doc/manual.html)
-* [Ubiquitous](https://shinmera.github.io/ubiquitous)
+* [Ubiquitous](https://shinmera.com/docs/ubiquitous)
 
 ## A Short Roadmap
 Like before, we'll see which points to address in this part of the tutorial.

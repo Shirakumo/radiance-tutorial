@@ -34,10 +34,10 @@ You can also change the configuration directly from Lisp, which will also automa
     (setf (radiance:mconfig :radiance :debugger) NIL)
 
 ### Are there configuration formats other than the S-expression based one?
-Not out of the box, no. Though you can write your own format. See the documentation of [Ubiquitous](https://shinmera.github.io/ubiquitous) for that.
+Not out of the box, no. Though you can write your own format. See the documentation of [Ubiquitous](https://shinmera.com/docs/ubiquitous) for that.
 
 ### What kinds of objects can I store into the configuration?
-Most everything will be persisted, so you should be able to just throw values in there in most cases. Some exceptions and limitations exist, but they're laid out pretty precisely in the [Ubiquitous documentation](https://shinmera.github.io/ubiquitous).
+Most everything will be persisted, so you should be able to just throw values in there in most cases. Some exceptions and limitations exist, but they're laid out pretty precisely in the [Ubiquitous documentation](https://shinmera.com/docs/ubiquitous).
 
 ### How do I force links to go over HTTPS?
 You can either define a route in your main Radiance configuration file as follows:
@@ -64,14 +64,14 @@ As an example, switching the database to the postgres implementation would requi
 Followed by a restart if Radiance was already started up, or the interface has already been loaded.
 
 ### Where do I find available implementations?
-Shirakumo provides a number of default implementations for interfaces. Every interface has at least one implementation available. You can find the list on the [radiance-contribs](https://github.com/Shirakumo/radiance-contribs) project page.
+Shirakumo provides a number of default implementations for interfaces. Every interface has at least one implementation available. You can find the list on the [radiance-contribs](https://shirakumo.org/project/radiance-contribs) project page.
 
 Note that anyone else, yourself included, can write new implementations for interfaces, or new interfaces altogether. However, there's no way for us to track that, so unless people tell us about it, we wouldn't know how to find it either.
 
 ### An implementation that fits my needs doesn't exist, how do I write it?
 The short of it is this: add `(:implements #:interface-name)` to your `define-module` form to inform Radiance that you're ready to provide this interface's functionality. You can then use `(modularize-interfaces:print-interface-stub :interface-name)` to generate code stubs for definitions you need to implement or provide. Note that condition and class definitions usually don't need to be replicated, as they're already provided by the interface definition itself. Finally, read the specification of the interface and all of the definitions it provides, and implement them as required.
 
-You can look at the existing interface implementations in [radiance-contribs](https://github.com/Shirakumo/radiance-contribs) to get a better idea of what it looks like. A lot of the implementations are pretty short, and all in all it's not really a complicated process.
+You can look at the existing interface implementations in [radiance-contribs](https://shirakumo.org/project/radiance-contribs) to get a better idea of what it looks like. A lot of the implementations are pretty short, and all in all it's not really a complicated process.
 
 If you do end up writing an implementation, do let us know, though. We'd be very interested to hear about it!
 
@@ -92,7 +92,7 @@ If this path is as you expect, and your page isn't being called regardless, you 
     (define-page article "blog/(.+)" () ..)
     (define-page landing "blog/" () ..)
 
-Then the `landing` page would never be called. This is because Radiance automatically computes [an order](https://shirakumo.github.io/radiance/#RADIANCE-CORE:URI-DISPATCHER%3E) for your pages where, if your URI parts are equal except for the path part, then the one with a longer path is going to come first. You can check whether this is happening by calling `list-uri-dispatchers` which will show you all pages with the highest priority one being first.
+Then the `landing` page would never be called. This is because Radiance automatically computes [an order](https://shirakumo.org/docs/radiance/#RADIANCE-CORE:URI-DISPATCHER%3E) for your pages where, if your URI parts are equal except for the path part, then the one with a longer path is going to come first. You can check whether this is happening by calling `list-uri-dispatchers` which will show you all pages with the highest priority one being first.
 
 To avoid this problem, you can explicitly supply a priority number to your page like so:
 
@@ -142,7 +142,7 @@ Naturally it may make sense to break these files apart further if your project g
 Currently this is not directly supported, as the logic to handle path translation for the necessary assets is not handled. However, we would like to support this in a future version of Radiance. For now, you will have to make do with the bootstrapping process that was shown in the previous part.
 
 ### Things are not working as the documentation claims they should. What is going on?
-It's probably a bug! Either in the documentation or the implementation. Please [let us know](https://github.com/Shirakumo/radiance/issues/new).
+It's probably a bug! Either in the documentation or the implementation. Please [let us know](https://shirakumo.org/project/radiance/issues/new).
 
 ### Should I use a proxy in front of my Radiance installation?
 That depends on the server implementation you use, but in general the answer will be yes. Other servers like Nginx are simply much faster at handling SSL and delivering static content that putting them in front and setting up the caching logic will give you a significant performance and security boost.
@@ -152,7 +152,7 @@ That's a loaded question, and the answer mostly depends on the current setup you
 
 ## Non-Questions
 ### I don't like Radiance.
-That's fine, there's plenty of other frameworks out there to look at if you don't like this one. If you can be bothered, we'd still like to hear what you have to say about it, so please [let us know](https://github.com/Shirakumo/radiance/issues/new).
+That's fine, there's plenty of other frameworks out there to look at if you don't like this one. If you can be bothered, we'd still like to hear what you have to say about it, so please [let us know](https://shirakumo.org/project/radiance/issues/new).
 
 ### I like Radiance.
-That's great! If you end up making anything cool with it, we'd be very interested in [hearing about it](https://github.com/Shirakumo/radiance/issues/new).
+That's great! If you end up making anything cool with it, we'd be very interested in [hearing about it](https://shirakumo.org/project/radiance/issues/new).

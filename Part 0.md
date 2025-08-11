@@ -1,13 +1,13 @@
 # Part 0
 ## Introduction
-In Radiance, many things work similarly to the way they work in other web frameworks, but some things do not. No matter which aspects of Radiance you decide to use, you should probably try performing the steps in this tutorial yourself, while keeping open the [Radiance documentation (programmer's reference)](https://shirakumo.github.io/radiance) so you can study the [reference definitions](https://shirakumo.github.io/radiance/#index) of Radiance's functions, macros, etc. as you first encounter them in this tutorial. The [reference definitions](https://shirakumo.github.io/radiance/#index) comprise a comprehensive index of Radiance's functions, macros, generic functions, and of the special variables, routes, options, hooks, resources, conditions, and field types of the thirteen built-in Radiance modules. Each definition includes cross references to related symbols and a link to the defined symbol's source code.
+In Radiance, many things work similarly to the way they work in other web frameworks, but some things do not. No matter which aspects of Radiance you decide to use, you should probably try performing the steps in this tutorial yourself, while keeping open the [Radiance documentation (programmer's reference)](https://shirakumo.org/docs/radiance) so you can study the [reference definitions](https://shirakumo.org/docs/radiance/#index) of Radiance's functions, macros, etc. as you first encounter them in this tutorial. The [reference definitions](https://shirakumo.org/docs/radiance/#index) comprise a comprehensive index of Radiance's functions, macros, generic functions, and of the special variables, routes, options, hooks, resources, conditions, and field types of the thirteen built-in Radiance modules. Each definition includes cross references to related symbols and a link to the defined symbol's source code.
 
-Besides the reference definitions, the documentation includes a basic quick-start guide, a pointer to this tutorial, a brief capsule of [pointers to Radiance's development](https://shirakumo.github.io/radiance/#system), and an important, in-depth overview of [Radiance's concepts and parts](https://shirakumo.github.io/radiance/#1._radiance_concepts_&_parts) that you should at least skim or scan.
+Besides the reference definitions, the documentation includes a basic quick-start guide, a pointer to this tutorial, a brief capsule of [pointers to Radiance's development](https://shirakumo.org/docs/radiance/#system), and an important, in-depth overview of [Radiance's concepts and parts](https://shirakumo.org/docs/radiance/#1._radiance_concepts_&_parts) that you should at least skim or scan.
 
 This tutorial will guide you in building a fully fledged paste service from the ground up. We're going to do it the same way any application might be designed. Thus we will start out simple and successively elaborate, testing functionality along the way. To be comfortable following the tutorial, you should have an intermediate level of experience with Common Lisp, know how to create basic Lisp projects, and know how to manage Lisp systems, dependencies, and packages. The tutorial was written for Radiance 1.0; it might not work for later versions and definitely will not work for earlier versions.
 
 ## Dependencies
-It is expected that you have a working Common Lisp environment, including Quicklisp and ASDF. If you do not, consider using [Portacle](https://shinmera.github.io/portacle) for quick setup.
+It is expected that you have a working Common Lisp environment, including Quicklisp and ASDF. If you do not, consider using [Portacle](https://shinmera.com/docs/portacle) for quick setup.
 
 ## Installing Radiance
 Due to various circumstances, Radiance is not provided through the standard Quicklisp distribution. However, Quicklisp supports multiple distributions (called "dists"). Adding a distribution to Quicklisp is a matter of just one line. The following should be sufficient to install Radiance:
@@ -27,14 +27,14 @@ The last part, [Part 8](Part%208.md), addresses general questions that might com
 ## Resources & Documentation
 Here are links to relevant documentation and resource pages that will be useful to refer to as you go through this tutorial.
 
-* [Radiance](https://shirakumo.github.io/radiance)
-* [Interface Definitions](https://github.com/Shirakumo/radiance/blob/master/standard-interfaces.lisp)
-* [Clip](https://shinmera.github.io/clip)
-* [lQuery](https://shinmera.github.io/lquery)
-* [LASS](https://shinmera.github.io/LASS)
-* [Crypto-Shortcuts](https://shinmera.github.io/crypto-shortcuts)
+* [Radiance](https://shirakumo.org/docs/radiance)
+* [Interface Definitions](https://shirakumo.org/project/radiance/blob/master/standard-interfaces.lisp)
+* [Clip](https://shinmera.com/docs/clip)
+* [lQuery](https://shinmera.com/docs/lquery)
+* [LASS](https://shinmera.com/docs/LASS)
+* [Crypto-Shortcuts](https://shinmera.com/docs/crypto-shortcuts)
 * [CodeMirror](http://codemirror.net/doc/manual.html)
-* [Ubiquitous](https://shinmera.github.io/ubiquitous)
+* [Ubiquitous](https://shinmera.com/docs/ubiquitous)
 
 ## Tutorial Roadmap
 A good roadmap for the creation of a paste service can be based upon a list of the application's capabilities and interactions with the user. A paste service is relatively well defined, so this isn't much of a problem. Our roadmap will include the creation of:

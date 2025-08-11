@@ -4,14 +4,14 @@
 ## Resources & Documentation
 Here are links to relevant documentation and resource pages that will be useful to refer to for this tutorial.
 
-* [Radiance](https://shirakumo.github.io/radiance)
-* [Interface Definitions](https://github.com/Shirakumo/radiance/blob/master/standard-interfaces.lisp)
-* [Clip](https://shinmera.github.io/clip)
-* [lQuery](https://shinmera.github.io/lquery)
-* [LASS](https://shinmera.github.io/LASS)
-* [Crypto-Shortcuts](https://shinmera.github.io/crypto-shortcuts)
+* [Radiance](https://shirakumo.org/docs/radiance)
+* [Interface Definitions](https://shirakumo.org/project/radiance/blob/master/standard-interfaces.lisp)
+* [Clip](https://shinmera.com/docs/clip)
+* [lQuery](https://shinmera.com/docs/lquery)
+* [LASS](https://shinmera.com/docs/LASS)
+* [Crypto-Shortcuts](https://shinmera.com/docs/crypto-shortcuts)
 * [CodeMirror](http://codemirror.net/doc/manual.html)
-* [Ubiquitous](https://shinmera.github.io/ubiquitous)
+* [Ubiquitous](https://shinmera.com/docs/ubiquitous)
 
 ## A Short Roadmap
 This is the last entry in this tutorial. Congratulations for making it this far!
@@ -94,35 +94,35 @@ The Radiance contribs project includes standard implementations for all interfac
 
 ### Logger
 
-* [i-log4cl](https://github.com/Shirakumo/radiance-contribs/tree/master/i-log4cl) A mapping to [Log4CL](https://github.com/7max/log4cl).
-* [i-verbose](https://github.com/Shirakumo/radiance-contribs/tree/master/i-verbose) [Default] A mapping to [Verbose](https://shinmera.github.io/verbose/).
+* [i-log4cl](https://shirakumo.org/project/radiance-contribs/tree/master/i-log4cl) A mapping to [Log4CL](https://github.com/7max/log4cl).
+* [i-verbose](https://shirakumo.org/project/radiance-contribs/tree/master/i-verbose) [Default] A mapping to [Verbose](https://shinmera.com/docs/verbose/).
 
 ### Server
 
-* [i-hunchentoot](https://github.com/Shirakumo/radiance-contribs/tree/master/i-hunchentoot) [Default] Interfacing with the [Hunchentoot](http://weitz.de/hunchentoot/) webserver.
-* [i-wookie](https://github.com/Shirakumo/radiance-contribs/tree/master/i-wookie) A backend for the async [Wookie](http://wookie.lyonbros.com/) webserver.
-* [i-woo](https://github.com/Shirakumo/radiance-contribs/tree/master/i-woo) Integrating with the high-performance [Woo](https://github.com/fukamachi/woo) webserver.
+* [i-hunchentoot](https://shirakumo.org/project/radiance-contribs/tree/master/i-hunchentoot) [Default] Interfacing with the [Hunchentoot](http://weitz.de/hunchentoot/) webserver.
+* [i-wookie](https://shirakumo.org/project/radiance-contribs/tree/master/i-wookie) A backend for the async [Wookie](http://wookie.lyonbros.com/) webserver.
+* [i-woo](https://shirakumo.org/project/radiance-contribs/tree/master/i-woo) Integrating with the high-performance [Woo](https://github.com/fukamachi/woo) webserver.
 
 ### Database
 
-* [i-lambdalite](https://github.com/Shirakumo/radiance-contribs/tree/master/i-lambdalite) [Default] Using the CL-native lightweight [Lambdalite](https://github.com/Wukix/LambdaLite) library.
-* [i-postmodern](https://github.com/Shirakumo/radiance-contribs/tree/master/i-postmodern) Connecting to [PostgreSQL](https://www.postgresql.org/) databases through [Postmodern](http://marijnhaverbeke.nl/postmodern/).
-* [i-sqlite](https://github.com/Shirakumo/radiance-contribs/tree/master/i-sqlite) Using the simple [SQLite](https://www.sqlite.org/) single-file in-process database.
+* [i-lambdalite](https://shirakumo.org/project/radiance-contribs/tree/master/i-lambdalite) [Default] Using the CL-native lightweight [Lambdalite](https://github.com/Wukix/LambdaLite) library.
+* [i-postmodern](https://shirakumo.org/project/radiance-contribs/tree/master/i-postmodern) Connecting to [PostgreSQL](https://www.postgresql.org/) databases through [Postmodern](http://marijnhaverbeke.nl/postmodern/).
+* [i-sqlite](https://shirakumo.org/project/radiance-contribs/tree/master/i-sqlite) Using the simple [SQLite](https://www.sqlite.org/) single-file in-process database.
 
 ## Untouched Areas
 While this tutorial touched on a lot of things Radiance offers, it naturally didn't explore everything. There's still a few more standard interfaces that Radiance offers, further things you can do with requests and responses, extension mechanisms for options and resources, custom interface definitions, etc.
 
-Depending on your needs and goals when you write your own application, you may find some of those features useful. Hopefully the [documentation](https://shirakumo.github.io/radiance) will help you find what you're looking for.
+Depending on your needs and goals when you write your own application, you may find some of those features useful. Hopefully the [documentation](https://shirakumo.org/docs/radiance) will help you find what you're looking for.
 
-We've also not touched on interface implementation at all. Usually you won't need to do anything with that either unless you, as a sysop, have needs that aren't met by the standard contribs. However, there isn't really much to the implementation aspect beyond reading the specification for the respective interface and writing the necessary code. You can have a look at the [existing implementations](https://github.com/Shirakumo/radiance-contribs) to see what an implementation might look like.
+We've also not touched on interface implementation at all. Usually you won't need to do anything with that either unless you, as a sysop, have needs that aren't met by the standard contribs. However, there isn't really much to the implementation aspect beyond reading the specification for the respective interface and writing the necessary code. You can have a look at the [existing implementations](https://shirakumo.org/project/radiance-contribs) to see what an implementation might look like.
 
 For a general list of questions you might encounter (and the answers thereof), see [Part 8](Part%208.md).
 
 ## Final Thoughts
-Hopefully this tutorial gave you enough of an insight into how Radiance works and can be used to be able to use it for your own purposes. Don't forget to read through the [core documentation](https://shirakumo.github.io/radiance) as well, as it explains the individual parts that make up Radiance in some detail and links to all the relevant symbols.
+Hopefully this tutorial gave you enough of an insight into how Radiance works and can be used to be able to use it for your own purposes. Don't forget to read through the [core documentation](https://shirakumo.org/docs/radiance) as well, as it explains the individual parts that make up Radiance in some detail and links to all the relevant symbols.
 
-You can find the [complete source code](https://github.com/Shirakumo/plaster) for the application that was written as part of this tutorial online as well, and you can even download it directly from the Shirakumo dist. [Shirakumo](https://shirakumo.org/projects/) also offers a couple of other applications that can be used straight away for your own sites, or to learn some more about general practises in using Radiance.
+You can find the [complete source code](https://shirakumo.org/project/plaster) for the application that was written as part of this tutorial online as well, and you can even download it directly from the Shirakumo dist. [Shirakumo](https://shirakumo.org/projects/) also offers a couple of other applications that can be used straight away for your own sites, or to learn some more about general practises in using Radiance.
 
 Remember also that Radiance tries not to force anything on you. There are a lot of facilities in place that try to make your life easier, but you can ignore most of all of them, if you don't want to use them. You don't have to use the database interfaces if you have a good reason to use a particular database directly. You don't have to use Clip, LASS, or pure JS if you prefer other solutions to webdesign. You don't have to use the API facility if you prefer to roll your own. You can even disregard the URI and routing mechanisms if you don't plan on redistributing your application or using them outside of a particular setup. Whatever you end up doing, just keep in mind that the point of using a framework is in letting it take some work off of your shoulders. This comes at the cost of some constraints. Whether that trade-off seems right is up to your preferences and needs. Radiance was designed with the thought in mind that it should constrain you as little as possible, but that still doesn't mean that it is the best fit for every job.
 
-Finally I would like to say that Radiance is by no means set in stone. I am very much willing, if not yearning, to listen to feedback about it. If you have problems with it, see areas that could be improved, or even have ideas for additional pieces to extend the package, please let me know. You can do so via [email](mailto:shinmera@tymoon.eu), IRC (Freenode/#shirakumo), or on [GitHub](https://github.com/shirakumo/radiance).
+Finally I would like to say that Radiance is by no means set in stone. I am very much willing, if not yearning, to listen to feedback about it. If you have problems with it, see areas that could be improved, or even have ideas for additional pieces to extend the package, please let me know. You can do so via [email](mailto:shinmera@tymoon.eu), IRC (Freenode/#shirakumo), or on [GitHub](https://shirakumo.org/project/radiance).

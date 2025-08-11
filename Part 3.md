@@ -4,14 +4,14 @@
 ## Resources & Documentation
 Here are links to relevant documentation and resource pages that will be useful to refer to for this tutorial.
 
-* [Radiance](https://shirakumo.github.io/radiance)
-* [Interface Definitions](https://github.com/Shirakumo/radiance/blob/master/standard-interfaces.lisp)
-* [Clip](https://shinmera.github.io/clip)
-* [lQuery](https://shinmera.github.io/lquery)
-* [LASS](https://shinmera.github.io/LASS)
-* [Crypto-Shortcuts](https://shinmera.github.io/crypto-shortcuts)
+* [Radiance](https://shirakumo.org/docs/radiance)
+* [Interface Definitions](https://shirakumo.org/project/radiance/blob/master/standard-interfaces.lisp)
+* [Clip](https://shinmera.com/docs/clip)
+* [lQuery](https://shinmera.com/docs/lquery)
+* [LASS](https://shinmera.com/docs/LASS)
+* [Crypto-Shortcuts](https://shinmera.com/docs/crypto-shortcuts)
 * [CodeMirror](http://codemirror.net/doc/manual.html)
-* [Ubiquitous](https://shinmera.github.io/ubiquitous)
+* [Ubiquitous](https://shinmera.com/docs/ubiquitous)
 
 ## A Short Roadmap
 On the menu for today we have...
@@ -31,7 +31,7 @@ This one is very easy. We'll add a new page that just retrieves the paste and re
   (dm:field (ensure-paste id) "text"))
 ```
 
-And done. It is important not to forget to set the content-type of the response to `text/plain`, lest the paste service could be abused to host HTML pages. Note also that despite us defining a new page that has the same URI prefix as the `view` page, the dispatching will still work just fine. This is due to Radiance's URI precedence ordering, which you can read up on in detail [in the documentation](https://shirakumo.github.io/radiance/#RADIANCE-CORE:URI-DISPATCHER>).
+And done. It is important not to forget to set the content-type of the response to `text/plain`, lest the paste service could be abused to host HTML pages. Note also that despite us defining a new page that has the same URI prefix as the `view` page, the dispatching will still work just fine. This is due to Radiance's URI precedence ordering, which you can read up on in detail [in the documentation](https://shirakumo.org/docs/radiance/#RADIANCE-CORE:URI-DISPATCHER>).
 
 Should you ever encounter a situation where the automatic ordering is not doing what you need, you can instead pass an explicit priority number to your page definition like so:
 
